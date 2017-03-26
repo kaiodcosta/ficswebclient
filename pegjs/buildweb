@@ -1,0 +1,3 @@
+#! /bin/sh
+
+mkdir -p ../client/js && pegjs --export-var window.PARSER --format globals -o ../client/js/ficsparser.js fics_parser.pegjs
