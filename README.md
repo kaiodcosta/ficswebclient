@@ -15,7 +15,7 @@ mkdir -p client/chess.js-master && unzip master.zip -d client/chess.js-master/
 # do this once and then anytime the pegjs/fics_parser.pegjs is changed
 cd pegjs && ./buildweb
 
-# modify servchess.js to put in your fics login. Guests do not work yet
+# Guest logins do not work yet
 
 # run
 ./servchess.js
