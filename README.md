@@ -1,6 +1,6 @@
 
 
-# first make sure to install for node:  express socket-io telnet-client pegjs
+# first make sure to install for node:  express socket.io telnet-client pegjs
 
 
 # do this once

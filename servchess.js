@@ -37,6 +37,12 @@ var io = require('socket.io')(http);
 
 io.on('connection', function(socket) {
     socket.on('login', function(msg) {
+        var login = msg[0];
+        var password = msg[1];
+
+        fics_telnet_params.username = msg[0];
+        fics_telnet_params.password = msg[1];
+
         fics_telnet.connect(fics_telnet_params).then(function(prompt) { 
             fics_telnet.send('iset block 1',{maxBufferLength:10000})
                 .then( function() {
@@ -68,11 +74,11 @@ io.on('connection', function(socket) {
                             
                             if (!cmd_num) {
                                 actual_data = actual_data.replace(/fics%/g, '').replace(/^[\s\n\r]+|[\s\n\r]+$/g,'');
-                                socket.emit('result', actual_data);
+                                if (actual_data.length) socket.emit('result', actual_data);
                             } else {
                                 bufparts.push(actual_data);
                                 if (last_part) {
-                                    socket.emit('result', bufparts.join(''));
+                                    if (bufparts.join('').length) socket.emit('result', bufparts.join(''));
                                     while (bufparts.length) { bufparts.pop(); }
                                     cmd_num = 0;
                                     cmd_code = 0;
