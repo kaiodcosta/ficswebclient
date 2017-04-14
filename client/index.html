@@ -87,12 +87,36 @@
                         // observe command result
                         } else if (ficsobj.cmd_code === 80) {
                             showout = true;
+                            
+                            console.log(ficsobj.s12);
+                            
+                            var game_num = ficsobj.s12.game_num.toString();
+                            
+                            var observe_div_id = 'observe_' + game_num;
+                            var wp_div_id = 'wplayer_' + game_num;
+                            var bp_div_id = 'bplayer_' + game_num;
+                            var board_div_id = 'board_' + game_num;
+                            var ginfo_div_id = 'ginfo_' + game_num;
 
-                            var div_id_str = 'observe_' + ficsobj.s12.game_num.toString();
-                            $('<div id="' + div_id_str + '" style="width: 400px"></div>').appendTo($('#games_div'));
+                            var observe_div = $('<div id="' + observe_div_id + '" style="clear:both"></div>');
+                            var wp_div = $('<div id="' + wp_div_id + '" style="clear:both"></div>');
+                            var bp_div = $('<div id="' + bp_div_id + '" style="clear:both"></div>');
+                            var board_div = $('<div id="' + board_div_id + '" style="width: 400px; float:left"></div>');
+                            var ginfo_div = $('<div id="' + ginfo_div_id + '" style="float:left"></div>');
 
-                            var board = new ChessBoard(div_id_str, {position: fenFromRanks(ficsobj.s12.ranks)});
-                            boardmap.set(div_id_str, board);
+                            wp_div.text(ficsobj.s12.w_name);
+                            bp_div.text(ficsobj.s12.b_name);
+
+                            ginfo_div.html(getGameInfoHTML(ficsobj.s12));
+
+                            bp_div.appendTo(observe_div);
+                            board_div.appendTo(observe_div);
+                            ginfo_div.appendTo(observe_div);
+                            wp_div.appendTo(observe_div);
+                            observe_div.appendTo($('#games_div'));
+
+                            var board = new ChessBoard(board_div_id, {position: fenFromRanks(ficsobj.s12.ranks)});
+                            boardmap.set(board_div_id, board);
 
                         } else {
                             showout = true;
@@ -102,7 +126,8 @@
                 } else {
                     showout = true;
                     if (ficsobj.style12) {
-                        boardmap.get('observe_'+ficsobj.s12.game_num.toString()).move(ficsobj.s12.move_note);
+                        boardmap.get('board_'+ficsobj.s12.game_num.toString()).move(ficsobj.s12.move_note);
+                        $('#ginfo_'+ficsobj.s12.game_num.toString()).html(getGameInfoHTML(ficsobj.s12));
                         showout = false;
                     }
                 }
@@ -115,6 +140,26 @@
 
                 console.log('end on result');
             });
+
+            function getGameInfoHTML(s12) {
+                var info = [
+                    'whose_move: ' + s12.whose_move, 
+                    'game_num: ' + s12.game_num, 
+                    'my_rel: ' + s12.my_rel, 
+                    'dur: ' + s12.dur, 
+                    'inc: ' + s12.inc, 
+                    'w_mat: ' + s12.w_mat, 
+                    'b_mat: ' + s12.b_mat, 
+                    'w_clock: ' + s12.w_clock, 
+                    'b_clock: ' + s12.b_clock, 
+                    'move_num: ' + s12.move_num, 
+                    'move_piece: ' + s12.move_piece, 
+                    'move_note: ' + s12.move_note, 
+                    'move_time: ' + s12.move_time, 
+                    'move_note_short: ' + s12.move_note_short,
+                    ]
+                return '<pre>' + info.join('\n') + '</pre>';
+            }
 
 
             socket.on("logged_in", function(msg) {
