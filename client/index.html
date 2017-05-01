@@ -5,10 +5,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.min.js"></script>
     <script src="chessboardjs-0.3.0/js/chessboard-0.3.0.min.js"></script>
     <script src="js/ficsparser.js"></script>
+    <script src="js/movesparser.js"></script>
     <link rel="stylesheet" href="chessboardjs-0.3.0/css/chessboard-0.3.0.min.css" />
     <script>
         $(document).ready(function(){
             //#define BLK_GAMES 43
+            //#define BLK_MOVES 77
             //#define BLK_OBSERVE 80
             //#define BLK_UNOBSERVE 138
             //#define BLK_SOUGHT 157
@@ -43,6 +45,7 @@
                 socket.emit('login', [$('#login').val(), $('#password').val()]);
             }
             var boardmap = new Map();
+            var movemap = new Map;
             var socket = io();
             
             socket.on("result", function(msg) {
@@ -71,6 +74,27 @@
                             });
                         // sought command result
                         } else if (ficsobj.cmd_code === 157) {
+                            $('#lists').empty();
+                            lines.forEach(x => {
+                                if (x.replace(/[\s\n\t\r\x07]*/g,'')) {
+                                    var gamenum = x.replace(/^\s+|\s+$/g, '').split(/\s+/)[0];
+                                    $('<a href="#" style="text-decoration: none">'+x+'</a><br />').on({
+                                        click: function() {
+                                            //socket.emit('command', '4 play ' + gamenum); 
+                                            console.log('4 play ' + gamenum); 
+                                            return false;
+                                        }
+                                    }).appendTo($('#lists'))
+                                }
+                            });
+                        // moves command result
+                        } else if (ficsobj.cmd_code === 77) {
+                            console.log("ssssssssssssss"+ficsobj.body);
+                            let movesobj = window.MOVESPARSER.parse(ficsobj.body);
+                            console.log(movesobj.get("game_num"));
+                            movemap.set(movesobj.get("game_num"), movesobj.get("moves"));
+                            console.log(movemap);
+
                             $('#lists').empty();
                             lines.forEach(x => {
                                 if (x.replace(/[\s\n\t\r\x07]*/g,'')) {
