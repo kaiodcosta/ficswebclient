@@ -6,6 +6,7 @@
     <script src="chessboardjs-0.3.0/js/chessboard-0.3.0.min.js"></script>
     <script src="js/ficsparser.js"></script>
     <script src="js/movesparser.js"></script>
+    <script src="js/game.js"></script>
     <link rel="stylesheet" href="chessboardjs-0.3.0/css/chessboard-0.3.0.min.css" />
     <script>
         $(document).ready(function(){
@@ -44,8 +45,7 @@
             function login () {
                 socket.emit('login', [$('#login').val(), $('#password').val()]);
             }
-            var boardmap = new Map();
-            var movemap = new Map;
+            var gamemap = new Map();
             var socket = io();
             
             socket.on("result", function(msg) {
@@ -89,11 +89,11 @@
                             });
                         // moves command result
                         } else if (ficsobj.cmd_code === 77) {
-                            console.log("ssssssssssssss"+ficsobj.body);
                             let movesobj = window.MOVESPARSER.parse(ficsobj.body);
-                            console.log(movesobj.get("game_num"));
-                            movemap.set(movesobj.get("game_num"), movesobj.get("moves"));
-                            console.log(movemap);
+                            let game = gamemap.get(movesobj.get("game_num").toString());
+                            game.setMoves(movesobj.get("moves"));
+                            game.setMoveTimes(movesobj.get("movetimes"));
+                            console.log(gamemap.get(movesobj.get("game_num").toString()).moves);
 
                             $('#lists').empty();
                             lines.forEach(x => {
@@ -115,6 +115,7 @@
                             console.log(ficsobj.s12);
                             
                             var game_num = ficsobj.s12.game_num.toString();
+                            gamemap.set(game_num, new Game(ficsobj.s12));
                             
                             var observe_div_id = 'observe_' + game_num;
                             var wp_div_id = 'wplayer_' + game_num;
@@ -139,8 +140,8 @@
                             wp_div.appendTo(observe_div);
                             observe_div.appendTo($('#games_div'));
 
-                            var board = new ChessBoard(board_div_id, {position: fenFromRanks(ficsobj.s12.ranks)});
-                            boardmap.set(board_div_id, board);
+                            let game = gamemap.get(game_num);
+                            game.setBoard(new ChessBoard(board_div_id, {position: fenFromRanks(ficsobj.s12.ranks)}));
 
                         } else {
                             showout = true;
@@ -150,8 +151,9 @@
                 } else {
                     showout = true;
                     if (ficsobj.style12) {
-                        boardmap.get('board_'+ficsobj.s12.game_num.toString()).move(ficsobj.s12.move_note);
-                        $('#ginfo_'+ficsobj.s12.game_num.toString()).html(getGameInfoHTML(ficsobj.s12));
+                        let game_num = ficsobj.s12.game_num.toString();
+                        gamemap.get(game_num).board.move(ficsobj.s12.move_note);
+                        $('#ginfo_'+game_num).html(getGameInfoHTML(ficsobj.s12));
                         showout = false;
                     }
                 }
