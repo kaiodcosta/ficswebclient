@@ -299,6 +299,7 @@ html, body {
 
                             $('#flip_' + game.game_num).click(function() {
                                 game.top_player = getBottomPlayer(game);  
+                                game.board.flip();
                                 addGameInfo(game);
                             }); 
                             console.log('asdfasdfasdf');    
