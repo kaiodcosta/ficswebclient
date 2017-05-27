@@ -46,7 +46,7 @@
         cmd_code: 0,
         body: '',
         style12: '',
-        s12: { ranks:[] }
+        s12: { ranks:[], top_player:'b' }
         };
 }
 
