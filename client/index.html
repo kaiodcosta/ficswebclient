@@ -129,6 +129,19 @@
                             wp_div.text(ficsobj.s12.w_name);
                             bp_div.text(ficsobj.s12.b_name);
 
+
+
+                            $('<a href="#" style="text-decoration: none">CLOSE</a><br />').on({
+                                click: function() {
+                                    socket.emit('command', '6 unobserve ' + game_num); 
+                                    console.log("6 unobserve " + game_num); 
+                                    return false;
+                                }
+                            }).appendTo($('#lists'))
+
+
+
+
                             ginfo_div.html(getGameInfoHTML(ficsobj.s12));
 
                             bp_div.appendTo(observe_div);
