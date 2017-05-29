@@ -177,17 +177,6 @@ html, body {
                     }
             });
 
-			function getBottomPlayer(obj) {
-				console.log(obj);
-				if (obj.top_player == 'w') {
-					bottom_player = 'b';
-				}
-				else {
-					bottom_player = 'w';
-				}
-				return bottom_player;
-			}
-
 			function toMinutes(seconds) {
 				var seconds = parseInt(seconds);
 				var minutes = Math.floor(seconds / 60).toString();
@@ -202,14 +191,19 @@ html, body {
 				return minutes + ':' + remaining_seconds
 			}
 
-			function addGameInfo(obj) {
-				
-				console.log('gameobj');
-				console.log(obj);
-				$('#top_player_' + obj.game_num).html(obj[obj.top_player + '_name']);
-				$('#bottom_player_' + obj.game_num).html(obj[getBottomPlayer(obj) + '_name']);
-				$('#top_time_' + obj.game_num).html(toMinutes(obj[obj.top_player + '_clock']));
-				$('#bottom_time_' + obj.game_num).html(toMinutes(obj[getBottomPlayer(obj) + '_clock']));
+			function renderPlayersDOM(game_num) {
+				var game = gamemap.get(game_num);
+                if (game.top_is_black) {
+                    $('#top_player_' + game_num).html(game.b_name);
+                    $('#top_time_' + game_num).html(toMinutes(game.b_clock));
+                    $('#bottom_player_' + game_num).html(game.w_name);
+                    $('#bottom_time_' + game_num).html(toMinutes(game.w_clock));
+                } else {
+                    $('#top_player_' + game_num).html(game.w_name);
+                    $('#top_time_' + game_num).html(toMinutes(game.w_clock));
+                    $('#bottom_player_' + game_num).html(game.b_name);
+                    $('#bottom_time_' + game_num).html(toMinutes(game.b_clock));
+                }
 			}			
 
             function login () {
@@ -262,7 +256,7 @@ html, body {
                         // moves command result
                         } else if (ficsobj.cmd_code === 77) {
                             let movesobj = window.MOVESPARSER.parse(ficsobj.body);
-                            let game = gamemap.get(movesobj.get("game_num").toString());
+                            let game = gamemap.get(movesobj.get("game_num"));
 							game.top_player = 'b';
 							var game_num = game.game_num;
 							console.log('qweqwe');
@@ -278,7 +272,7 @@ html, body {
                             console.log(game.movetimes);
                             console.log(game.movetimes.length);
                             console.log("\n");
-                            console.log(gamemap.get(movesobj.get("game_num").toString()).moves);
+                            console.log(gamemap.get(movesobj.get("game_num")).moves);
 
 
 
@@ -309,12 +303,12 @@ html, body {
                             observe_div.appendTo($('#games_div'));
 
                             $('#flip_' + game.game_num).click(function() {
-                                game.top_player = getBottomPlayer(game);  
+                                game.top_is_black = game.top_is_black ? false : true;
                                 game.board.flip();
-                                addGameInfo(game);
+                                renderPlayersDOM(game_num);
                             }); 
                             console.log('asdfasdfasdf');    
-                            addGameInfo(game);
+                            renderPlayersDOM(game_num);
 
                             move_number = 1;
 
@@ -366,7 +360,7 @@ html, body {
                             
                             console.log(ficsobj.s12);
                             
-                            var game_num = ficsobj.s12.game_num.toString();
+                            var game_num = ficsobj.s12.game_num;
                             gamemap.set(game_num, new Game(ficsobj.s12));
                             
 
@@ -379,12 +373,11 @@ html, body {
                 } else {
                     showout = true;
                     if (ficsobj.style12) {
-                        let game_num = ficsobj.s12.game_num.toString();
+                        let game_num = ficsobj.s12.game_num;
                         let game = gamemap.get(game_num);
                         game.updateWithS12(ficsobj.s12);
                         game.board.move(ficsobj.s12.move_note);
-                        addGameInfo(ficsobj.s12);
-                        //$('#ginfo_'+game_num).html(getGameInfoHTML(ficsobj.s12));
+                        renderPlayersDOM(game_num);
                         showout = false;
 
                         console.log("IN S12 RESULT");
@@ -404,28 +397,6 @@ html, body {
 
                 console.log('end on result');
             });
-
-            /*
-            function getGameInfoHTML(s12) {
-                var info = [
-                    'whose_move: ' + s12.whose_move, 
-                    'game_num: ' + s12.game_num, 
-                    'my_rel: ' + s12.my_rel, 
-                    'dur: ' + s12.dur, 
-                    'inc: ' + s12.inc, 
-                    'w_mat: ' + s12.w_mat, 
-                    'b_mat: ' + s12.b_mat, 
-                    'w_clock: ' + s12.w_clock, 
-                    'b_clock: ' + s12.b_clock, 
-                    'move_num: ' + s12.move_num, 
-                    'move_piece: ' + s12.move_piece, 
-                    'move_note: ' + s12.move_note, 
-                    'move_time: ' + s12.move_time, 
-                    'move_note_short: ' + s12.move_note_short,
-                    ]
-                return '<pre>' + info.join('\n') + '</pre>';
-            }
-            */
 
 
             socket.on("logged_in", function(msg) {

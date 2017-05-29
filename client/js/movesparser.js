@@ -154,7 +154,7 @@
         peg$c7 = /^[1-9]/,
         peg$c8 = peg$classExpectation([["1", "9"]], false, false),
         peg$c9 = function(gn) {
-            mappy.set("game_num", parseInt(gn));
+            mappy.set("game_num", gn);
         },
         peg$c10 = peg$anyExpectation(),
         peg$c11 = /^[PNBRQKxO\-=a-h1-9]/,

@@ -1,5 +1,7 @@
 class Game {
     constructor(s12) {
+        this.top_is_black = true;
+
         this.ranks = s12.ranks;
 
         this.whose_move = s12.whose_move;

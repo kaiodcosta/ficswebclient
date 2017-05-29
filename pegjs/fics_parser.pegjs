@@ -46,7 +46,7 @@
         cmd_code: 0,
         body: '',
         style12: '',
-        s12: { ranks:[], top_player:'b' }
+        s12: { ranks: [] }
         };
 }
 
@@ -87,7 +87,7 @@ s12_b_qcast = x: [01]  { res.s12.b_qcast = parseInt(x); }
 
 s12_moves_since_ir = x: $([0-9]+)  { res.s12.moves_since_ir = parseInt(x); }
 
-s12_game_num = x: $([0-9]+)  { res.s12.game_num = parseInt(x); }
+s12_game_num = x: $([0-9]+)  { res.s12.game_num = x; }
 
 s12_w_name = x: $( [^ ]+ )  { res.s12.w_name = x; }
 s12_b_name = x: $( [^ ]+ )  { res.s12.b_name = x; }
