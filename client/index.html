@@ -297,7 +297,7 @@ html, body {
 
                             for (i=0; i < game.moves.length; i++) {
                                 if (i % 2 == 0) {
-                                    $('#moves_' + game_num).append('<div class="move_number" id="move_38_' + move_number.toString() + '">' + move_number.toString() + '</div><div class="move">' + game.moves[i] + '</div>');
+                                    $('#moves_' + game_num).append('<div class="move_number" id="move_' + game_num + '_' + move_number.toString() + '">' + move_number.toString() + '</div><div class="move">' + game.moves[i] + '</div>');
                                 } else {
                                     $('#moves_' + game_num).append('<div class="move">' + game.moves[i] + '</div>');
                                     move_number += 1;
