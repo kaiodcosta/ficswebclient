@@ -1,3 +1,6 @@
+
+var gamemap = new Map();
+
 class Game {
     constructor(s12) {
         this.top_is_black = true;

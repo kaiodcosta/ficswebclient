@@ -1,5 +1,5 @@
 #! /bin/sh
 
 mkdir -p ../client/js
-pegjs --export-var window.PARSER --format globals -o ../client/js/ficsparser.js fics_parser.pegjs
+pegjs --export-var window.FICSPARSER --format globals -o ../client/js/ficsparser.js fics_parser.pegjs
 pegjs --export-var window.MOVESPARSER --format globals -o ../client/js/movesparser.js moves_parser.pegjs

@@ -87,7 +87,7 @@ io.on('connection', function(socket) {
                         });
 
                         socket.on('command', function(cmd) {
-                            stream.write(cmd + '\n');
+                            stream.write('77 ' + cmd + '\n');
                         });
 
                         stream.on("error", (error) => console.log('EERRROOOORRRR:::   '+error));
