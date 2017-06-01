@@ -8,6 +8,14 @@
 
 var ficswrap = io();
 
+ficswrap.on("logged_in", function(msg) {
+    $('#login_div').hide();
+    $('#shellout').show();
+    $('#shellin').show();
+    $('#games').prop('disabled', false);
+    $('#sought').prop('disabled', false);
+});
+
 ficswrap.on("result", function(msg) {
     let ficsobj = window.FICSPARSER.parse(msg);
     let showout = false;
@@ -29,18 +37,15 @@ ficswrap.on("result", function(msg) {
 				var game_num = movesobj.get("game_num");
                 var game = gamemap.get(game_num);
 
-                game.initMoves(movesobj.get("moves"));
-                game.initMoveTimes(movesobj.get("movetimes"));
+                var moves = movesobj.get("moves");
+                var movetimes = movesobj.get("movetimes");
 
-                move_number = 1;
+                renderMoveList(game_num, moves);
 
-                for (i=0; i < game.moves.length; i++) {
-                    if (i % 2 == 0) {
-                        $('#moves_' + game_num).append('<div class="move_number" id="move_' + game_num + '_' + move_number.toString() + '">' + move_number.toString() + '</div><div class="move">' + game.moves[i] + '</div>');
-                    } else {
-                        $('#moves_' + game_num).append('<div class="move">' + game.moves[i] + '</div>');
-                        move_number += 1;
-                    }
+                for (var i=0; i<moves.length; i++) {
+                    game.chess.move(moves[i]);
+                    game.fens[i] = game.chess.fen();
+                    game.movetimes[i] = movetimes[i];
                 }
 
             // observe command result
@@ -77,35 +82,3 @@ ficswrap.on("result", function(msg) {
 });
 
 
-ficswrap.on("logged_in", function(msg) {
-    $('#login_div').hide();
-    $('#shellout').show();
-    $('#shellin').show();
-    $('#games').prop('disabled', false);
-    $('#sought').prop('disabled', false);
-});
-
-
-function fenFromRanks(ranks) {
-    var fen = '';
-    for (let r=0; r<8; r++) {
-        let rank = ranks[r];
-        let empty_count = 0;
-        for (let s=0; s<8; s++) {
-            if (rank[s] === '-') {
-                empty_count++;
-                if (s === 7) {
-                    fen = fen + empty_count.toString();
-                }
-            } else {
-                if (empty_count) {
-                    fen = fen + empty_count.toString();
-                }
-                fen = fen + rank[s];
-                empty_count = 0;
-            }
-        }
-        if (r != 7) { fen = fen + '/'; }
-    }
-    return fen;
-}

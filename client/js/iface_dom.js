@@ -1,3 +1,28 @@
+function fenFromRanks(ranks) {
+    var fen = '';
+    for (let r=0; r<8; r++) {
+        let rank = ranks[r];
+        let empty_count = 0;
+        for (let s=0; s<8; s++) {
+            if (rank[s] === '-') {
+                empty_count++;
+                if (s === 7) {
+                    fen = fen + empty_count.toString();
+                }
+            } else {
+                if (empty_count) {
+                    fen = fen + empty_count.toString();
+                }
+                fen = fen + rank[s];
+                empty_count = 0;
+            }
+        }
+        if (r != 7) { fen = fen + '/'; }
+    }
+    return fen;
+}
+
+
 function toMinutes(seconds) {
 	var seconds = parseInt(seconds);
 	var minutes = Math.floor(seconds / 60).toString();
@@ -58,6 +83,22 @@ function renderSoughtList(lines) {
     });
 }
 
+function renderMoveList(game_num, moves) {
+    var move_number = 1;
+
+    for (i=0; i < moves.length; i++) {
+        if (i % 2 == 0) {
+            var move_num_div = $('<div class="move_number">' + move_number.toString() + '</div>');
+            move_num_div.appendTo($('#moves_' + game_num));
+        } else {
+            move_number += 1;
+        }
+
+        var move_div = $('<div class="move">' + moves[i] + '</div>');
+        move_div.appendTo($('#moves_' + game_num));
+    }
+}
+
 
 function renderGame(game_num) {
     var game = gamemap.get(game_num);
@@ -97,8 +138,10 @@ function renderGame(game_num) {
 
     bottom_player_div.appendTo(observe_div);
 
+
     observe_div.appendTo($('#games_div'));
 
+    renderPlayersDOM(game_num);
     game.initGameBoard(new ChessBoard('board_' + game_num, {position: fenFromRanks(game.ranks)}));
 }
 

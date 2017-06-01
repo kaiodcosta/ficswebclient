@@ -15,8 +15,13 @@ class Game {
 
         this.moves = [];
         this.movetimes = [];
+        this.fens = [];
+
+        this.chess = new Chess();
+        console.log(this.chess.fen() + 'is the fen');
 
         this.updateWithS12(s12);
+
     }
 
     updateWithS12(s12) {
@@ -48,8 +53,13 @@ class Game {
         this.move_time = s12.move_time;
         this.move_note_short = s12.move_note_short;
 
-        this.moves[this.move_index] = this.move_note_short;
+        this.chess.move(this.move_note_short);
+        this.fens.push(this.chess.fen());
         this.movetimes[this.move_index] = this.move_time;
+
+        console.log(this.chess.moves());
+        console.log(this.fens);
+        console.log(this.movetimes);
 
         this.board_flip = s12.board_flip;
     }
@@ -57,18 +67,6 @@ class Game {
     setMoveIndex() {
         this.move_index = ((this.move_num-1) * 2) - (this.whose_move == 'W' ? 1 : 0); 
         console.log('move_index is ' + this.move_index.toString());
-    }
-
-    initMoves(moves) {
-        for (let i=0; i<moves.length; i++) {
-            this.moves[i] = moves[i];
-        }
-    }
-
-    initMoveTimes(movetimes) {
-        for (let i=0; i<movetimes.length; i++) {
-            this.movetimes[i] = movetimes[i];
-        }
     }
 
     initGameBoard(board) {
