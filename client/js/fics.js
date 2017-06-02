@@ -65,9 +65,9 @@ ficswrap.on("result", function(msg) {
     } else {
         showout = true;
         if (ficsobj.style12) {
-            console.log('\n\n\nBegin Move:\n');
             let game_num = ficsobj.s12.game_num;
             let game = gamemap.get(game_num);
+            console.log('\n\n\nGame # ' + game_num + ' - Begin Move:\n');
             console.log(game.chess.history().length + '  ' + getMoveIndexFromS12(ficsobj.s12));
             if (game.chess.history().length != getMoveIndexFromS12(ficsobj.s12)) {
                 console.log('xxxxxxxxxxxxxxxxxx  -- something wrong, calling moves');
@@ -83,6 +83,8 @@ ficswrap.on("result", function(msg) {
                 }
                 */
                 console.log('ficsobj.s12.move_note_short is: ' + ficsobj.s12.move_note_short);
+                var new_move_index = game.chess.history().length;
+                
                 var move_info = game.chess.move(ficsobj.s12.move_note_short);
                 if (move_info) {
                     var board_moves = [];
@@ -109,10 +111,19 @@ ficswrap.on("result", function(msg) {
                         console.log('board_move: ' + board_moves[i]);
                         game.board.move(board_moves[i]);
                     }
+                    game.movetimes[new_move_index] = ficsobj.s12.move_time;
+                    game.fens[new_move_index] = game.chess.fen();
+                    game.s12 = ficsobj.s12;
+                    appendMove(game_num, ficsobj.s12.move_note_short, new_move_index);
                 }
             }
-            game.updateWithS12(ficsobj.s12);
-            appendMove(game_num, ficsobj.s12.move_note_short, getMoveIndexFromS12(ficsobj.s12));
+            console.log('game.chess.history().length :  ' + game.chess.history().length);
+            console.log(game.chess.history());
+            console.log('game.fens.length :  ' + game.fens.length);
+            console.log(game.fens);
+            console.log('game.movetimes.length :  ' + game.movetimes.length);
+            console.log(game.movetimes);
+
             renderPlayersDOM(game_num);
             showout = false;
         }

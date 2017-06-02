@@ -46,15 +46,15 @@ function toMinutes(seconds) {
 function renderPlayersDOM(game_num) {
 	var game = gamemap.get(game_num);
     if (game.top_is_black) {
-        $('#top_player_' + game_num).html(game.b_name);
-        $('#top_time_' + game_num).html(toMinutes(game.b_clock));
-        $('#bottom_player_' + game_num).html(game.w_name);
-        $('#bottom_time_' + game_num).html(toMinutes(game.w_clock));
+        $('#top_player_' + game_num).html(game.chess.header().Black);
+        $('#top_time_' + game_num).html(toMinutes(game.s12.b_clock));
+        $('#bottom_player_' + game_num).html(game.chess.header().White);
+        $('#bottom_time_' + game_num).html(toMinutes(game.s12.w_clock));
     } else {
-        $('#top_player_' + game_num).html(game.w_name);
-        $('#top_time_' + game_num).html(toMinutes(game.w_clock));
-        $('#bottom_player_' + game_num).html(game.b_name);
-        $('#bottom_time_' + game_num).html(toMinutes(game.b_clock));
+        $('#top_player_' + game_num).html(game.chess.header().White);
+        $('#top_time_' + game_num).html(toMinutes(game.s12.w_clock));
+        $('#bottom_player_' + game_num).html(game.chess.header().Black);
+        $('#bottom_time_' + game_num).html(toMinutes(game.s12.b_clock));
     }
 }			
 
@@ -163,7 +163,7 @@ function renderGame(game_num) {
     observe_div.appendTo($('#games_div'));
 
     renderPlayersDOM(game_num);
-    game.initGameBoard(new ChessBoard('board_' + game_num, {position: fenFromRanks(game.ranks)}));
+    game.board = new ChessBoard('board_' + game_num, {position: fenFromRanks(game.s12.ranks)});
 }
 
 
