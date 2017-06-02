@@ -65,16 +65,51 @@ ficswrap.on("result", function(msg) {
     } else {
         showout = true;
         if (ficsobj.style12) {
+            console.log('\n\n\nBegin Move:\n');
             let game_num = ficsobj.s12.game_num;
             let game = gamemap.get(game_num);
             console.log(game.chess.history().length + '  ' + getMoveIndexFromS12(ficsobj.s12));
             if (game.chess.history().length != getMoveIndexFromS12(ficsobj.s12)) {
-                console.log('something wrong, calling moves');
+                console.log('xxxxxxxxxxxxxxxxxx  -- something wrong, calling moves');
                 ficswrap.emit('command', 'moves '+game_num);
             } else {
-                game.board.move(ficsobj.s12.move_note);
-                console.log('qweqweqwe');
-                console.log(game.chess.move(ficsobj.s12.move_note_short));
+                /*
+                { color: 'w',
+                  from: 'e1',
+                  to: 'g1',
+                  flags: 'k',
+                  piece: 'k',
+                  san: 'O-O' 
+                }
+                */
+                console.log('ficsobj.s12.move_note_short is: ' + ficsobj.s12.move_note_short);
+                var move_info = game.chess.move(ficsobj.s12.move_note_short);
+                if (move_info) {
+                    var board_moves = [];
+                    if (move_info.flags === 'k') {
+                        if (move_info.color === 'w') {
+                            board_moves.push('e1-g1');
+                            board_moves.push('h1-f1');
+                        } else {
+                            board_moves.push('e8-g8');
+                            board_moves.push('h8-f8');
+                        }
+                    } else if (move_info.flags === 'q') {
+                        if (move_info.color === 'w') {
+                            board_moves.push('e1-c1');
+                            board_moves.push('a1-d1');
+                        } else {
+                            board_moves.push('e8-c8');
+                            board_moves.push('a8-d8');
+                        }
+                    } else {
+                        board_moves.push(move_info.from + '-' + move_info.to);
+                    }
+                    for (i=0; i<board_moves.length; i++) {
+                        console.log('board_move: ' + board_moves[i]);
+                        game.board.move(board_moves[i]);
+                    }
+                }
             }
             game.updateWithS12(ficsobj.s12);
             appendMove(game_num, ficsobj.s12.move_note_short, getMoveIndexFromS12(ficsobj.s12));

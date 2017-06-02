@@ -18,7 +18,6 @@ class Game {
         this.fens = [];
 
         this.chess = new Chess();
-        console.log(this.chess.fen() + 'is the fen');
 
         this.updateWithS12(s12);
 
@@ -54,13 +53,13 @@ class Game {
         this.move_time = s12.move_time;
         this.move_note_short = s12.move_note_short;
 
-        this.chess.move(this.move_note_short);
+        //this.chess.move(this.move_note_short);
         this.fens.push(this.chess.fen());
         this.movetimes[this.move_index] = this.move_time;
 
-        console.log(this.chess.history());
-        console.log(this.fens);
-        console.log(this.movetimes);
+        console.log('game.chess.history().length :  ' + this.chess.history().length);
+        console.log('game.fens.length :  ' + this.fens.length);
+        console.log('game.movetimes.length :  ' + this.movetimes.length);
 
         this.board_flip = s12.board_flip;
     }
