@@ -1,3 +1,9 @@
+function getMoveIndexFromS12(s12) {
+    return ((s12.move_num-1) * 2) - (s12.whose_move == 'W' ? 1 : 0); 
+}
+
+
+
 function fenFromRanks(ranks) {
     var fen = '';
     for (let r=0; r<8; r++) {
@@ -86,6 +92,8 @@ function renderSoughtList(lines) {
 function renderMoveList(game_num, moves) {
     var move_number = 1;
 
+    $('#moves_' + game_num).empty();
+
     for (i=0; i < moves.length; i++) {
         if (i % 2 == 0) {
             var move_num_div = $('<div class="move_number">' + move_number.toString() + '</div>');
@@ -97,6 +105,19 @@ function renderMoveList(game_num, moves) {
         var move_div = $('<div class="move">' + moves[i] + '</div>');
         move_div.appendTo($('#moves_' + game_num));
     }
+}
+
+
+function appendMove(game_num, movestr, i) {
+    move_number = Math.floor(i/2) + 1;
+
+    if (i % 2 == 0) {
+        var move_num_div = $('<div class="move_number">' + move_number.toString() + '</div>');
+        move_num_div.appendTo($('#moves_' + game_num));
+    }
+
+    var move_div = $('<div class="move">' + movestr + '</div>');
+    move_div.appendTo($('#moves_' + game_num));
 }
 
 

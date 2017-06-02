@@ -67,8 +67,17 @@ ficswrap.on("result", function(msg) {
         if (ficsobj.style12) {
             let game_num = ficsobj.s12.game_num;
             let game = gamemap.get(game_num);
+            console.log(game.chess.history().length + '  ' + getMoveIndexFromS12(ficsobj.s12));
+            if (game.chess.history().length != getMoveIndexFromS12(ficsobj.s12)) {
+                console.log('something wrong, calling moves');
+                ficswrap.emit('command', 'moves '+game_num);
+            } else {
+                game.board.move(ficsobj.s12.move_note);
+                console.log('qweqweqwe');
+                console.log(game.chess.move(ficsobj.s12.move_note_short));
+            }
             game.updateWithS12(ficsobj.s12);
-            game.board.move(ficsobj.s12.move_note);
+            appendMove(game_num, ficsobj.s12.move_note_short, getMoveIndexFromS12(ficsobj.s12));
             renderPlayersDOM(game_num);
             showout = false;
         }

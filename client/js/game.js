@@ -46,7 +46,8 @@ class Game {
         this.b_clock = s12.b_clock;
 
         this.move_num = s12.move_num;
-        this.setMoveIndex();
+        //this.setMoveIndex();
+        this.move_index = getMoveIndexFromS12(s12);
 
         this.move_piece = s12.move_piece;
         this.move_note = s12.move_note;
@@ -57,7 +58,7 @@ class Game {
         this.fens.push(this.chess.fen());
         this.movetimes[this.move_index] = this.move_time;
 
-        console.log(this.chess.moves());
+        console.log(this.chess.history());
         console.log(this.fens);
         console.log(this.movetimes);
 
