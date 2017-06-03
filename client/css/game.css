@@ -39,11 +39,57 @@ html, body {
 
 }
 
+#resize {
+    background-color: #ccc;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 4px;
+    cursor: w-resize;
+}
+
+.commands_container {
+	padding:5px;
+    box-sizing:border-box;
+	display:flex;
+	position:absolute;
+	bottom:0;
+	width:100%;
+	height:100%;
+}
+
+.draggable_container {
+	position:relative;
+	height:400px;
+	min-height:35px;
+}
+
+.shell_container, .lists_container {
+    width:50%;
+	height:100%;
+}
+
+#shellout, #lists {
+    height:calc(100% - 35px);
+    overflow: auto; 
+    white-space:nowrap;
+    padding : 0 18px 0 3px;
+    box-sizing:border-box;
+}
+
+#games_div {
+	position:absolute;
+	top:400px;
+	width:100%;
+	padding-top:10px;
+}
+
 .observe {
     border:1px solid black;
     box-sizing:border-box;
     padding: 0 10px;
-    display:block;
+    display:inline-block;
+	float:left;
 }
 
 .observe .board {
@@ -56,7 +102,7 @@ html, body {
     max-height:400px;
     margin-left:10px;
 	display:inline-block;
-	float:left;
+	vertical-align:middle;
 }
 
 .observe .game_info {
@@ -92,7 +138,7 @@ html, body {
 .board_info_container {
     display:inline-block;
     max-height:400px;
-	float:left;
+	vertical-align:middle;
 }
 
 .move_list {
