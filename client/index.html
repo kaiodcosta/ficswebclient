@@ -22,20 +22,46 @@
         <input type="button" name="submit" value="login" id="login_button" />
         <br/>
     </div>
-    <div style="clear:both">
-        <div id="shellout" style="height: 30%; overflow: auto; white-space:nowrap;padding : 0 18 0 3px"></div>
-        <div id="shellin">
-            shell: <input type="text" name="shell" id="shell" size="50"/>
-        </div>
-    </div>
-    <div style="clear:both">
-        <div id="games_div" style="float:left; width: auto">
-        </div>
-        <div style="float:right">
-            <input type="button" name="games" value="Games in progress" id="games" />
-            <input type="button" name="sought" value="Games available" id="sought" />
-            <div id="lists" style="height: 100%; overflow: auto; white-space:nowrap;padding : 0 18 0 3px"></div>
-        </div>
-    </div>
+	<div class="draggable_container">
+		<div class="commands_container">
+			<div class="shell_container">
+				<div id="shellout"></div>
+				<div id="shellin">
+					shell: <input type="text" name="shell" id="shell" size="50"/>
+				</div>
+			</div>
+			<div class="lists_container">
+				<div id="lists"></div>
+				<input type="button" name="games" value="Games in progress" id="games" />
+				<input type="button" name="sought" value="Games available" id="sought" />
+			</div>
+		</div>
+		<div id="resize">
+	</div>
 
+    <div id="games_div" class="clearfix"></div>
 </body>
+
+<script>
+var m_pos;
+function resize(e){
+    var parent = resize_el.parentNode;
+    var dx = e.y - m_pos;
+    m_pos = e.y;
+    parent.style.height = (parseInt(getComputedStyle(parent, '').height) + dx) + "px";
+    $('#games_div').css('top', (parseInt(getComputedStyle(parent, '').height) + dx) + "px");
+
+}
+
+var resize_el = document.getElementById("resize");
+resize_el.addEventListener("mousedown", function(e){
+    m_pos = e.y;
+	e.preventDefault();
+    document.addEventListener("mousemove", resize, false);
+}, false);
+document.addEventListener("mouseup", function(){
+    document.removeEventListener("mousemove", resize, false);
+}, false);
+
+
+</script>
