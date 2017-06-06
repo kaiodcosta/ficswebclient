@@ -166,20 +166,22 @@ function renderGame(game_num) {
     game.board = new ChessBoard('board_' + game_num, {position: fenFromRanks(game.s12.ranks)});
 }
 
-var m_pos;
+var mouseY;
 
 function resize(e){
-    var dx = e.pageY - m_pos;
-    m_pos = e.pageY;
+    var dx = e.pageY - mouseY;
+    mouseY = e.pageY;
 
-    $('#resize_container').css('height', ($('#resize_container').height() + dx) + 'px');
-    $('#games_div').css('top', ($('#resize_container').height() + dx) + 'px');
+    var newY = $('#resize_container').height() + dx;
+
+    $('#resize_container').css('height', newY + 'px');
+    $('#games_div').css('top', newY + 'px');
 }
 
 
 $(document).ready(function(){
     $('#resizer').on('mousedown', function(e) {
-        m_pos = e.pageY;
+        mouseY = e.pageY;
         e.preventDefault();
         $(document).on('mousemove', resize);
     });
