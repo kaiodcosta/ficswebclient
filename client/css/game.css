@@ -177,3 +177,6 @@ html, body {
 	line-height: 25px;
 }
 
+.highlight {
+    background-color: orange;
+}
