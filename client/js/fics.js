@@ -12,8 +12,11 @@ ficswrap.on("logged_in", function(msg) {
     $('#login_div').hide();
     $('#shellout').show();
     $('#shellin').show();
-    $('#games').prop('disabled', false);
-    $('#sought').prop('disabled', false);
+    $('#games').prop('hidden', false);
+    $('#sought').prop('hidden', false);
+    $('#match').prop('hidden', false);
+    $('#seek').prop('hidden', false);
+    $('#resizer').prop('hidden', false);
 });
 
 ficswrap.on("result", function(msg) {

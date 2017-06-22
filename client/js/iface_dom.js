@@ -200,6 +200,24 @@ function renderSoughtList(lines) {
 }
 
 
+function renderMatchForm() {
+    $('#lists').empty();
+    var player_input = $('<input type="text" name="player_name" id="match_player" size="20" />');
+    var submit = $('<input type="button" value="challenge" />');
+    player_input.appendTo($('#lists'));
+    submit.appendTo($('#lists'));
+    submit.on('click', function() {
+        ficswrap.emit('command', 'match ' + player_input.val());
+    });
+}
+
+
+function renderSeekForm() {
+    $('#lists').empty();
+    $('<div>QWE</div>').appendTo($('#lists'));
+}
+
+
 var focus_game_num = '';
 var mouseY;
 
@@ -268,8 +286,11 @@ $(document).ready(function(){
     $('#shellout').hide();
     $('#shellin').hide();
 
-    $('#games').prop('disabled', true);
-    $('#sought').prop('disabled', true);
+    $('#games').prop('hidden', true);
+    $('#sought').prop('hidden', true);
+    $('#match').prop('hidden', true);
+    $('#seek').prop('hidden', true);
+    $('#resizer').prop('hidden', true);
 
     $('#games').on('click', function(e) {
         ficswrap.emit('command', 'games');
@@ -277,6 +298,14 @@ $(document).ready(function(){
 
     $('#sought').on('click', function(e) {
         ficswrap.emit('command', 'sought');
+    });
+
+    $('#match').on('click', function(e) {
+        renderMatchForm();
+    });
+
+    $('#seek').on('click', function(e) {
+        renderSeekForm();
     });
 
     $('#login').keypress(function(e) {
