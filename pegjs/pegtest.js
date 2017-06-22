@@ -1,14 +1,22 @@
 #! /usr/local/bin/node
 
-//var varfile = process.argv[2];
-var varfile = 'test.txt';
+var fs = require('fs')
+var peg = require("pegjs/lib/peg.js");
 
-var parser = require("./fics_parser");
+var grammer_file = process.argv[2];
+var text_file = process.argv[3];
 
-fs = require('fs')
-fs.readFile(varfile, 'ascii', function (err,data) {
+fs.readFile(grammer_file, 'ascii', function (err,data) {
     if (err) {
         return console.log(err);
     }
-    console.log(parser.parse(data));
+    var parser = peg.generate(data);
+
+    fs.readFile(text_file, 'ascii', function (err2,data2) {
+        if (err2) {
+            return console.log(err2);
+        }
+        var parsed = parser.parse(data2);
+        console.log(parsed);
+    });
 });
