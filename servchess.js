@@ -25,8 +25,6 @@ var fics_telnet_params = {
     timeout: 1500,
     loginPrompt: 'login: ',
     passwordPrompt: 'password: ',
-    username: '',
-    password: '',
     debug: true,
     maxBufferLength:10000,
 };
@@ -37,11 +35,12 @@ var io = require('socket.io')(http);
 
 io.on('connection', function(socket) {
     socket.on('login', function(msg) {
-        var login = msg[0];
-        var password = msg[1];
-
         fics_telnet_params.username = msg[0];
         fics_telnet_params.password = msg[1];
+
+        if ( /[Gg]uest/.test(msg[0]) ) {
+            fics_telnet_params.passwordPrompt = /Press return to enter the server as .*/;
+        }
 
         fics_telnet.connect(fics_telnet_params).then(function(prompt) { 
             fics_telnet.send('iset block 1',{maxBufferLength:10000})

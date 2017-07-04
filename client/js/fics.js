@@ -49,26 +49,28 @@ ficswrap.on("result", function(msg) {
             // moves command result
             } else if (ficsobj.cmd_code === 77) {
                 var movesobj = window.MOVESPARSER.parse(ficsobj.body);
-				var game_num = movesobj.get("game_num");
+                var game_num = movesobj.get("game_num");
                 var game = gamemap.get(game_num);
 
-                var moves = movesobj.get("moves");
-                var movetimes = movesobj.get("movetimes");
+                if (game) {
+                    var moves = movesobj.get("moves");
+                    var movetimes = movesobj.get("movetimes");
 
-                for (var i=0; i<moves.length; i++) {
-                    game.chess.move(moves[i]);
-                    game.fens[i] = game.chess.fen();
-                    game.movetimes[i] = movetimes[i];
+                    for (var i=0; i<moves.length; i++) {
+                        game.chess.move(moves[i]);
+                        game.fens[i] = game.chess.fen();
+                        game.movetimes[i] = movetimes[i];
+                    }
+
+                    game.current_move_index = game.chess.history().length - 1;
+
+                    renderGame(game_num);
+                    renderMoveList(game_num, moves);
                 }
-
-                game.current_move_index = game.chess.history().length - 1;
-
-                renderGame(game_num);
-                renderMoveList(game_num, moves);
 
             // observe command result
             } else if (ficsobj.cmd_code === 80) {
-                showout = true;
+                //showout = true;
                 var game_num = ficsobj.s12.game_num;
                 gamemap.set(game_num, new Game(ficsobj.s12));
 
@@ -80,25 +82,31 @@ ficswrap.on("result", function(msg) {
     }
 
     showout = true;
-    console.log('cmd_code or not, here is body, parse it');
+    console.log('cmd_code is ' + ficsobj.cmd_code + ', here is body, parse it');
+    //var bodyobj = window.BODYPARSER.parse(ficsobj.body);
     console.log(ficsobj.body);
     console.log('end body log');
     
     if (ficsobj.style12) {
-        console.log('ficsobj.style12');
+        console.log('ficsobj.style12 received');
         let game_num = ficsobj.s12.game_num;
         let game = gamemap.get(game_num);
 
 
-        console.log('\n\n\nGame # ' + game_num + ' - Begin Move:\n');
-        console.log(game.chess.history().length + '  ' + getMoveIndexFromS12(ficsobj.s12));
+        //console.log('\n\n\nGame # ' + game_num + ' - Begin Move:\n');
+        //console.log('ficsobj.s12 is');
+        //console.log(ficsobj.s12);
+        //console.log(game.chess.history().length + '  ' + getMoveIndexFromS12(ficsobj.s12));
+        //console.log(game.chess.history());
+        //console.log(ficsobj.s12);
+        //console.log(ficsobj.style12);
 
 
         if (game.chess.history().length != getMoveIndexFromS12(ficsobj.s12)) {
-            console.log('xxxxxxxxxxxxxxxxxx  -- something wrong, calling moves');
+            //console.log('xxxxxxxxxxxxxxxxxx  -- something wrong, calling moves');
             ficswrap.emit('command', 'moves '+game_num);
         } else {
-            console.log('ficsobj.s12.move_note_short is: ' + ficsobj.s12.move_note_short);
+            //console.log('ficsobj.s12.move_note_short is: ' + ficsobj.s12.move_note_short);
             var new_move_index = game.chess.history().length;
             
             var move_info = game.chess.move(ficsobj.s12.move_note_short, {sloppy:true});
@@ -110,20 +118,22 @@ ficswrap.on("result", function(msg) {
                 if (game.current_move_index == new_move_index - 1) {
                     goToMove(game_num, new_move_index, animate=true);
                 }
+                runClock(game_num);
             }
         }
 
-        runClock(game_num);
 
 
-        console.log('game.chess.history().length :  ' + game.chess.history().length);
-        console.log(game.chess.history());
-        console.log('game.fens.length :  ' + game.fens.length);
-        console.log(game.fens);
-        console.log('game.movetimes.length :  ' + game.movetimes.length);
-        console.log(game.movetimes);
+        //console.log('game.chess.history().length :  ' + game.chess.history().length);
+        //console.log(game.chess.history());
+        //console.log('game.fens.length :  ' + game.fens.length);
+        //console.log(game.fens);
+        //console.log('game.movetimes.length :  ' + game.movetimes.length);
+        //console.log(game.movetimes);
 
         showout = false;
+
+        console.log('DONE WITH RESULT HANDLE');
     }
 
 

@@ -11,7 +11,7 @@ start = header chunk+ [\n\r]* {
 
 header = [\n\r]* "Movelist for game " gamenum ":" [\n\r]
 
-gamenum = gn: $([1-9]+) {
+gamenum = gn:$([1-9][0-9]*) {
     mappy.set("game_num", gn);
 }
 

@@ -308,16 +308,21 @@ $(document).ready(function(){
         renderSeekForm();
     });
 
+    function loginFICS() {
+        ficswrap.emit('login', [$('#login').val(), $('#password').val()]);
+    }
+
     $('#login').keypress(function(e) {
-            if (e.which == 13) { ficswrap.emit('login', [$('#login').val(), $('#password').val()]); }
+        if (e.which == 13) { loginFICS(); }
     });
     
     $('#password').keypress(function(e) {
-            if (e.which == 13) { ficswrap.emit('login', [$('#login').val(), $('#password').val()]); }
+        if (e.which == 13) { loginFICS(); }
     });
     
     $('#login_button').on('click', function(e) { 
-            ficswrap.emit('login', [$('#login').val(), $('#password').val()]);
+        loginFICS();
+
     });
 
 
