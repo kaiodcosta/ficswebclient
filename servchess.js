@@ -43,6 +43,8 @@ io.on('connection', function(socket) {
         }
 
         fics_telnet.connect(fics_telnet_params).then(function(prompt) { 
+            fics_telnet.send('set seek 0',{maxBufferLength:10000});
+            fics_telnet.send('style 12',{maxBufferLength:10000});
             fics_telnet.send('iset block 1',{maxBufferLength:10000})
                 .then( function() {
                     fics_telnet.shell(function(error, stream) {

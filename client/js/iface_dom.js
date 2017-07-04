@@ -17,19 +17,35 @@ function toMinutes(seconds) {
 	return minutes + ':' + remaining_seconds
 }
 
+function stopClocks(game_num) {
+    var game = gamemap.get(game_num);
+    clearInterval(game.clocks['w']);
+    clearInterval(game.clocks['b']);
+}
 
 function runClock(game_num) {
     var game = gamemap.get(game_num);
+    stopClocks(game_num);
+
     var whose_move = ['w','b'][game.chess.history().length % 2];
     var not_whose_move = ['b','w'][game.chess.history().length % 2];
-    clearInterval(game.clocks[not_whose_move]);
+    if ( (game.top_is_black && whose_move === 'b') || (!game.top_is_black && whose_move === 'w') ) {
+        $('#bottom_time_' + game_num).html(toMinutes(game.s12[not_whose_move+'_clock']));
+        $('#bottom_time_' + game_num).css('background-color', '#000000');
+        $('#top_time_' + game_num).css('background-color', '#555555');
+    } else {
+        $('#top_time_' + game_num).html(toMinutes(game.s12[not_whose_move+'_clock']));
+        $('#top_time_' + game_num).css('background-color', '#000000');
+        $('#bottom_time_' + game_num).css('background-color', '#555555');
+    }
+    var track = game.s12[whose_move+'_clock'];
     game.clocks[whose_move] = setInterval( function() {
+        track -= 1;
         if ( (game.top_is_black && whose_move === 'b') || (!game.top_is_black && whose_move === 'w') ) {
-            $('#top_time_' + game_num).html(toMinutes(game.s12[whose_move+'_clock']));
+            $('#top_time_' + game_num).html(toMinutes(track));
         } else {
-            $('#bottom_time_' + game_num).html(toMinutes(game.s12[whose_move+'_clock']));
+            $('#bottom_time_' + game_num).html(toMinutes(track));
         }
-        game.s12[whose_move+'_clock'] -= 1;
     }, 1000);
 }
 
@@ -37,14 +53,14 @@ function runClock(game_num) {
 function renderPlayersDOM(game_num) {
 	var game = gamemap.get(game_num);
     if (game.top_is_black) {
-        $('#top_player_' + game_num).html(game.chess.header().Black);
+        $('#top_player_' + game_num).html(game.chess.header().Black + ' (' + game.chess.header().BlackElo + ')');
         $('#top_time_' + game_num).html(toMinutes(game.s12.b_clock));
-        $('#bottom_player_' + game_num).html(game.chess.header().White);
+        $('#bottom_player_' + game_num).html(game.chess.header().White + ' (' + game.chess.header().WhiteElo + ')');
         $('#bottom_time_' + game_num).html(toMinutes(game.s12.w_clock));
     } else {
-        $('#top_player_' + game_num).html(game.chess.header().White);
+        $('#top_player_' + game_num).html(game.chess.header().White + ' (' + game.chess.header().WhiteElo + ')');
         $('#top_time_' + game_num).html(toMinutes(game.s12.w_clock));
-        $('#bottom_player_' + game_num).html(game.chess.header().Black);
+        $('#bottom_player_' + game_num).html(game.chess.header().Black + ' (' + game.chess.header().BlackElo + ')');
         $('#bottom_time_' + game_num).html(toMinutes(game.s12.b_clock));
     }
     runClock(game_num);
@@ -104,7 +120,7 @@ function goToMove(game_num, i, animate=false) {
         $('#move_' + game_num + '_' + i).addClass('highlight');;
     }
     if (i == game.chess.history().length -1) {
-        $('#moves_'+game_num).scrollTop($('#moves_'+focus_game_num).prop('scrollHeight'));
+        $('#moves_'+game_num).scrollTop($('#moves_'+game_num).prop('scrollHeight'));
     }
 }
 
@@ -136,6 +152,7 @@ function renderGame(game_num) {
     board_div.appendTo(board_container_div);
 
     game_container_div.appendTo(observe_div);
+    ginfo_div.html('<div>' + game.chess.header().Event + '</div>');
     ginfo_div.appendTo(game_container_div);
 
     top_time_div.appendTo(ginfo_div);
@@ -152,13 +169,13 @@ function renderGame(game_num) {
 
     renderPlayersDOM(game_num);
     game.board = new ChessBoard('board_' + game_num, {
-        position: game.chess.fen(),
+        position: game.chess.fen().split(/\s+/)[0],
         onDrop : function(source, target, piece, newPos, oldPos, orientation) {
             var valid_move = game.chess.move({ from: source, to: target });
             if (!valid_move) {
                 return 'snapback';
             }
-            game.fens[game.chess.history().length - 1] = game.chess.fen().split(' ')[0];
+            game.fens[game.chess.history().length - 1] = game.chess.fen().split(/\s+/)[0];
             appendToMoveList(game_num, game.chess.history().length-1, goto_move=true);
             focus_game_num = game_num;
             runClock(game_num);

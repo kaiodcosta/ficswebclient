@@ -35,9 +35,9 @@ ficswrap.on("result", function(msg) {
     
     if (ficsobj.cmd_code) {
         cmd_code = ficsobj.cmd_code;
-        console.log('cmd_code: ' + cmd_code);
+        //console.log('cmd_code: ' + cmd_code);
         if (ficsobj.end_reached) {
-            console.log('ficsobj.endreached');
+            //console.log('ficsobj.endreached');
             // games command result
             if (ficsobj.cmd_code === 43) {
                 renderGameList(ficsobj.body.split('\n'));
@@ -58,7 +58,7 @@ ficswrap.on("result", function(msg) {
 
                     for (var i=0; i<moves.length; i++) {
                         game.chess.move(moves[i]);
-                        game.fens[i] = game.chess.fen();
+                        game.fens[i] = game.chess.fen().split(/\s+/)[0];
                         game.movetimes[i] = movetimes[i];
                     }
 
@@ -69,7 +69,7 @@ ficswrap.on("result", function(msg) {
                 }
 
             // observe command result
-            } else if (ficsobj.cmd_code === 80) {
+            } /*else if (ficsobj.cmd_code === 80) {
                 //showout = true;
                 var game_num = ficsobj.s12.game_num;
                 gamemap.set(game_num, new Game(ficsobj.s12));
@@ -77,18 +77,28 @@ ficswrap.on("result", function(msg) {
 
                 ficswrap.emit('command', 'moves ' + game_num);
             } 
-            
+            */
         }
     }
-
-    showout = true;
-    console.log('cmd_code is ' + ficsobj.cmd_code + ', here is body, parse it');
-    //var bodyobj = window.BODYPARSER.parse(ficsobj.body);
-    console.log(ficsobj.body);
-    console.log('end body log');
     
-    if (ficsobj.style12) {
-        console.log('ficsobj.style12 received');
+    showout = true;
+    console.log(ficsobj);
+    if (ficsobj.observe) {
+        console.log('qweeeeeeeeeeeeeeeeee');
+        var game_num = ficsobj.game_info.game_num;
+        gamemap.set(game_num, new Game(ficsobj.s12, ficsobj.game_info));
+        //console.log(game_num);
+        //console.log(gamemap.get(game_num));
+        ficswrap.emit('command', 'moves ' + game_num);
+    } else if (ficsobj.game_info.result) {
+        console.log('ggggggggggggggg');
+        var game_num = ficsobj.game_info.game_num;
+        var game = gamemap.get(game_num);
+        game.result = ficsobj.game_info.result;
+        game.situ = ficsobj.game_info.situ;
+        // showResult(game_num);  //TODO finish; revamp how game_info stored in Game
+    } else if (ficsobj.style12) {
+        //console.log('ficsobj.style12 received');
         let game_num = ficsobj.s12.game_num;
         let game = gamemap.get(game_num);
 
@@ -103,7 +113,7 @@ ficswrap.on("result", function(msg) {
 
 
         if (game.chess.history().length != getMoveIndexFromS12(ficsobj.s12)) {
-            //console.log('xxxxxxxxxxxxxxxxxx  -- something wrong, calling moves');
+            console.log('xxxxxxxxxxxxxxxxxx  -- something wrong, calling moves');
             ficswrap.emit('command', 'moves '+game_num);
         } else {
             //console.log('ficsobj.s12.move_note_short is: ' + ficsobj.s12.move_note_short);
@@ -112,13 +122,13 @@ ficswrap.on("result", function(msg) {
             var move_info = game.chess.move(ficsobj.s12.move_note_short, {sloppy:true});
             if (move_info) {
                 game.s12 = ficsobj.s12;
+                runClock(game_num);
                 game.movetimes[new_move_index] = ficsobj.s12.move_time;
-                game.fens[new_move_index] = game.chess.fen().split(' ')[0];
+                game.fens[new_move_index] = game.chess.fen().split(/\s+/)[0];
                 appendToMoveList(game_num, new_move_index);
                 if (game.current_move_index == new_move_index - 1) {
                     goToMove(game_num, new_move_index, animate=true);
                 }
-                runClock(game_num);
             }
         }
 
@@ -133,7 +143,7 @@ ficswrap.on("result", function(msg) {
 
         showout = false;
 
-        console.log('DONE WITH RESULT HANDLE');
+        //console.log('DONE WITH RESULT HANDLE');
     }
 
 

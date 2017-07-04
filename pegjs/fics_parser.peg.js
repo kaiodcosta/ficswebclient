@@ -1,11 +1,13 @@
 {
     var res = {
+        observe: false,
         end_reached: false,
         cmd_num: 0,
         cmd_code: 0,
         body: '',
         style12: '',
-        s12: { ranks: [] }
+        s12: { ranks: [] },
+        game_info: {},
         };
 }
 
@@ -15,7 +17,44 @@ start =  header? body ender? {
 
 header = $("\x15" cmdnum "\x16" cmdcode "\x16")
 
-body = neither? style12? neither?
+body = neither? observe? neither? game_situ? neither? style12? neither?
+//body = game_situ? neither? style12? neither?
+
+
+
+
+
+game_situ = "{Game " game_num " (" player " vs. " player ") " situ: $((!"}".)*) "}" _? r: $(result)? {
+    res.game_info.situ = situ;
+    res.game_info.result = r;
+}
+
+result = "1-0" / "0-1" / "\*" / "1/2-1/2"
+
+/*
+{Game 183 (GuestHKBG vs. GuestDMHB) GuestDMHB resigns} 1-0
+{Game 100 (Serlok vs. GuestYCMD) GuestYCMD forfeits by disconnection} 1-0
+{Game 79 (xandor vs. eyestiger) eyestiger checkmated} 1-0
+{Game 134 (dmacblu vs. prawngrabber) prawngrabber resigns} 1-0
+{Game 158 (robotvinik vs. CheckJohnson) Creating unrated standard match.}
+{Game 158 (robotvinik vs. CheckJohnson) Creating unrated standard match.}
+{Game 158 (robotvinik vs. CheckJohnson) Game aborted by mutual agreement} *
+{Game 116 (robotvinik vs. CheckJohnson) Creating unrated standard match.}
+{Game 116 (robotvinik vs. CheckJohnson) Creating unrated standard match.}
+{Game 116 (robotvinik vs. CheckJohnson) Game aborted on move 1} *
+{Game 116 (robotvinik vs. CheckJohnson) Game aborted on move 1} *
+{Game 240 (robotvinik vs. CheckJohnson) Game drawn by mutual agreement} 1/2-1/2
+
+*/
+
+
+
+
+
+
+
+
+
 
 ender = "\x17" {
   res.end_reached=true; }
@@ -24,15 +63,64 @@ cmdnum = cnum: $([0-9]+) {
  res.cmd_num = parseInt(cnum); }
 
 cmdcode = ccode: $([0-9]+) {
- res.cmd_code = parseInt(ccode); }
+  res.cmd_code = parseInt(ccode); }
+
+observe = "You are now observing game" _ game_num "." newl "Game" _ game_num ":" _ game_info {
+  res.observe = true;
+  }
 
 
-neither = bod: $( (!(style12 / "\x17") .)* )  {  
+game_num = gn:$([1-9][0-9]*) {
+    res.game_num = gn;
+    res.game_info.game_num = gn;
+  }
+
+game_info = white_player _ "(" white_rating ")" _ black_player _ "(" black_rating ")" _ runr _ variant _ time _ inc 
+
+player = p:$([A-z]+)
+
+white_player = p:$(player) {
+  res.game_info.white_player = p;
+  }
+
+black_player = p:$(player) {
+  res.game_info.black_player = p;
+  }
+
+rating = r:$([1-9-+ ][0-9-+ ]*)
+
+white_rating = r:$(rating) {
+  res.game_info.white_rating = r;
+  }
+  
+black_rating = r:$(rating) {
+  res.game_info.black_rating = r;
+  }
+  
+runr = r:$("rated" / "unrated") {
+  res.game_info.runr = r;
+  }
+
+variant = v:$("blitz" / "standard" / "suicide" / "lightning") {
+  res.game_info.variant = v;
+}
+
+time = t:number {
+  res.game_info.time = t;
+  }
+
+inc = i:number {
+  res.game_info.inc = i;
+  }
+
+number = $([0-9]+)
+
+neither = bod: $( (!(observe / game_situ / style12 / "\x17") .)* )  {  
   res.body = res.body + bod; }
 
 
 _ = " "+
-
+newl = [\n\r]+
 s12_rank = x: $([\-PpRrNnBbQqKk][\-PpRrNnBbQqKk][\-PpRrNnBbQqKk][\-PpRrNnBbQqKk]
             [\-PpRrNnBbQqKk][\-PpRrNnBbQqKk][\-PpRrNnBbQqKk][\-PpRrNnBbQqKk])  { if (res.s12.ranks.length < 8) res.s12.ranks.push(x); }
 
@@ -46,7 +134,7 @@ s12_b_qcast = x: [01]  { res.s12.b_qcast = parseInt(x); }
 
 s12_moves_since_ir = x: $([0-9]+)  { res.s12.moves_since_ir = parseInt(x); }
 
-s12_game_num = x: $([0-9]+)  { res.s12.game_num = x; }
+s12_game_num = x: $(game_num)  { res.s12.game_num = x; }
 
 s12_w_name = x: $( [^ ]+ )  { res.s12.w_name = x; }
 s12_b_name = x: $( [^ ]+ )  { res.s12.b_name = x; }
