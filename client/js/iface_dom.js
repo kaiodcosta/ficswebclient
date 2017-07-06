@@ -38,19 +38,23 @@ function runClock(game_num) {
         $('#top_time_' + game_num).css('background-color', '#000000');
         $('#bottom_time_' + game_num).css('background-color', '#555555');
     }
-    var track = game.s12[whose_move+'_clock'];
+
     game.clocks[whose_move] = setInterval( function() {
-        track -= 1;
+        if (game.s12[whose_move+'_clock'] <= 0) {
+            stopClocks(game_num);
+            return;
+        }
+        game.s12[whose_move+'_clock'] -= 1;
         if ( (game.top_is_black && whose_move === 'b') || (!game.top_is_black && whose_move === 'w') ) {
-            $('#top_time_' + game_num).html(toMinutes(track));
+            $('#top_time_' + game_num).html(toMinutes(game.s12[whose_move+'_clock']));
         } else {
-            $('#bottom_time_' + game_num).html(toMinutes(track));
+            $('#bottom_time_' + game_num).html(toMinutes(game.s12[whose_move+'_clock']));
         }
     }, 1000);
 }
 
 
-function renderPlayersDOM(game_num) {
+function renderPlayersDOM(game_num, runclock=true) {
 	var game = gamemap.get(game_num);
     if (game.top_is_black) {
         $('#top_player_' + game_num).html(game.chess.header().Black + ' (' + game.chess.header().BlackElo + ')');
@@ -63,7 +67,9 @@ function renderPlayersDOM(game_num) {
         $('#bottom_player_' + game_num).html(game.chess.header().Black + ' (' + game.chess.header().BlackElo + ')');
         $('#bottom_time_' + game_num).html(toMinutes(game.s12.b_clock));
     }
-    runClock(game_num);
+    if (runclock) {
+        runClock(game_num);
+    }
 }			
 
 
@@ -124,6 +130,20 @@ function goToMove(game_num, i, animate=false) {
     }
 }
 
+function showResult(game_num) {
+    console.log('dasd asd as das d');
+    var game = gamemap.get(game_num);
+    if (game) {
+        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdasd asd as das d');
+        $('#result_'+game_num).html(game.situ + ' ' + game.result);
+    }
+}
+
+function removeGame(game_num) {
+    gamemap.get(game_num).board.destroy();
+    gamemap.delete(game_num);
+    $('#observe_'+game_num).remove();
+}
 
 function renderGame(game_num) {
     var game = gamemap.get(game_num);
@@ -134,15 +154,22 @@ function renderGame(game_num) {
     var board_div = $('<div id="board_' + game_num + '" class="board"></div>');
     var game_container_div = $('<div class="game_info_container"></div>');
     var ginfo_div = $('<div id="ginfo_' + game_num + '" class="game_info"></div>');
+    var gnum_div = $('<div id="gnum_' + game_num + '" class="game_info"></div>');
+    var event_div = $('<div id="event_' + game_num + '" class="game_info"></div>');
     var top_time_div = $('<div id="top_time_' + game_num + '" class="top_time"></div>');
     var moves_div = $('<div id="moves_' + game_num + '" class="move_list clearfix"></div>');
     var bottom_time_div = $('<div id="bottom_time_' + game_num + '" class="bottom_time"></div>');
+    var result_div = $('<div id="result_' + game_num + '" class="game_info">IN PROGRESS</div>');
     var controls_div = $('<div id="controls_' + game_num + '" class="controls"></div>');
     var flip_button = $('<button type="button" id="flip_' + game_num + '"> Flip </button>');
     flip_button.click(function() {
         game.top_is_black = game.top_is_black ? false : true;
         game.board.flip();
         renderPlayersDOM(game_num);
+    });
+    var remove_button = $('<button type="button" id="remove_' + game_num + '"> Remove </button>');
+    remove_button.click(function() {
+        removeGame(game_num);
     });
     var bottom_player_div = $('<div id="bottom_player_' + game_num + '" class="player_name"></div>');
 
@@ -152,15 +179,20 @@ function renderGame(game_num) {
     board_div.appendTo(board_container_div);
 
     game_container_div.appendTo(observe_div);
-    ginfo_div.html('<div>' + game.chess.header().Event + '</div>');
     ginfo_div.appendTo(game_container_div);
-
+    
+    gnum_div.html('game number ' + game_num);
+    gnum_div.appendTo(ginfo_div);
+    event_div.html(game.chess.header().Event);
+    event_div.appendTo(ginfo_div);
     top_time_div.appendTo(ginfo_div);
     moves_div.appendTo(ginfo_div);
     bottom_time_div.appendTo(ginfo_div);
+    result_div.appendTo(ginfo_div);
 
     controls_div.appendTo(game_container_div);
     flip_button.appendTo(controls_div);
+    remove_button.appendTo(controls_div);
 
     bottom_player_div.appendTo(observe_div);
 
@@ -190,8 +222,11 @@ function renderGameList(lines) {
     lines.forEach(x => {
         if (x.replace(/[\s\n\t\r\x07]*/g,'')) {
             var gamenum = x.replace(/^\s+|\s+$/g, '').split(/\s+/)[0];
-            $('<a href="#" style="text-decoration: none">'+x+'</a><br />').on({
+            var li = $('<a href="#" class="list-item">'+x+'</a><br />');
+            li.css('color', 'orange');
+            li.on({
                 click: function() {
+                    li.css('color', 'cyan');
                     ficswrap.emit('command', 'observe ' + gamenum); 
                     return false;
                 }
@@ -206,8 +241,11 @@ function renderSoughtList(lines) {
     lines.forEach(x => {
         if (x.replace(/[\s\n\t\r\x07]*/g,'')) {
             var gamenum = x.replace(/^\s+|\s+$/g, '').split(/\s+/)[0];
-            $('<a href="#" style="text-decoration: none">'+x+'</a><br />').on({
+            var li = $('<a href="#" class="list-item">'+x+'</a><br />');
+            li.css('color', 'orange');
+            li.on({
                 click: function() {
+                    li.css('color', 'cyan');
                     //ficswrap.emit('command', 'play ' + gamenum); 
                     return false;
                 }

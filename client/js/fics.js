@@ -30,14 +30,14 @@ ficswrap.on("logged_in", function(msg) {
 });
 
 ficswrap.on("result", function(msg) {
-    let ficsobj = window.FICSPARSER.parse(msg);
-    let showout = false;
+    var ficsobj = window.FICSPARSER.parse(msg);
+    var showout = false;
+
+    console.log(ficsobj);
     
     if (ficsobj.cmd_code) {
         cmd_code = ficsobj.cmd_code;
-        //console.log('cmd_code: ' + cmd_code);
         if (ficsobj.end_reached) {
-            //console.log('ficsobj.endreached');
             // games command result
             if (ficsobj.cmd_code === 43) {
                 renderGameList(ficsobj.body.split('\n'));
@@ -67,56 +67,40 @@ ficswrap.on("result", function(msg) {
                     renderGame(game_num);
                     renderMoveList(game_num, moves);
                 }
-
-            // observe command result
-            } /*else if (ficsobj.cmd_code === 80) {
-                //showout = true;
-                var game_num = ficsobj.s12.game_num;
-                gamemap.set(game_num, new Game(ficsobj.s12));
-
-
-                ficswrap.emit('command', 'moves ' + game_num);
-            } 
-            */
+            }
         }
     }
     
     showout = true;
-    console.log(ficsobj);
-    if (ficsobj.observe) {
-        console.log('qweeeeeeeeeeeeeeeeee');
-        var game_num = ficsobj.game_info.game_num;
-        gamemap.set(game_num, new Game(ficsobj.s12, ficsobj.game_info));
-        //console.log(game_num);
-        //console.log(gamemap.get(game_num));
-        ficswrap.emit('command', 'moves ' + game_num);
-    } else if (ficsobj.game_info.result) {
-        console.log('ggggggggggggggg');
+
+    if (ficsobj.unobserve) {
+        var grdiv = $('#result_'+ficsobj.game_num);
+        if (grdiv && grdiv.html() === 'IN PROGRESS') {
+            grdiv.html('NO LONGER OBSERVING');
+        }
+        stopClocks(ficsobj.game_num);
+    }
+
+    if (ficsobj.game_info.result) {
         var game_num = ficsobj.game_info.game_num;
         var game = gamemap.get(game_num);
         game.result = ficsobj.game_info.result;
         game.situ = ficsobj.game_info.situ;
-        // showResult(game_num);  //TODO finish; revamp how game_info stored in Game
+        showResult(game_num);
+    }
+
+    if (ficsobj.observe) {
+        var game_num = ficsobj.game_info.game_num;
+        gamemap.set(game_num, new Game(ficsobj.s12, ficsobj.game_info));
+        ficswrap.emit('command', 'moves ' + game_num);
     } else if (ficsobj.style12) {
-        //console.log('ficsobj.style12 received');
-        let game_num = ficsobj.s12.game_num;
-        let game = gamemap.get(game_num);
-
-
-        //console.log('\n\n\nGame # ' + game_num + ' - Begin Move:\n');
-        //console.log('ficsobj.s12 is');
-        //console.log(ficsobj.s12);
-        //console.log(game.chess.history().length + '  ' + getMoveIndexFromS12(ficsobj.s12));
-        //console.log(game.chess.history());
-        //console.log(ficsobj.s12);
-        //console.log(ficsobj.style12);
-
+        var game_num = ficsobj.s12.game_num;
+        var game = gamemap.get(game_num);
 
         if (game.chess.history().length != getMoveIndexFromS12(ficsobj.s12)) {
             console.log('xxxxxxxxxxxxxxxxxx  -- something wrong, calling moves');
             ficswrap.emit('command', 'moves '+game_num);
         } else {
-            //console.log('ficsobj.s12.move_note_short is: ' + ficsobj.s12.move_note_short);
             var new_move_index = game.chess.history().length;
             
             var move_info = game.chess.move(ficsobj.s12.move_note_short, {sloppy:true});
@@ -132,20 +116,8 @@ ficswrap.on("result", function(msg) {
             }
         }
 
-
-
-        //console.log('game.chess.history().length :  ' + game.chess.history().length);
-        //console.log(game.chess.history());
-        //console.log('game.fens.length :  ' + game.fens.length);
-        //console.log(game.fens);
-        //console.log('game.movetimes.length :  ' + game.movetimes.length);
-        //console.log(game.movetimes);
-
         showout = false;
-
-        //console.log('DONE WITH RESULT HANDLE');
     }
-
 
     if (ficsobj.body.length && showout) 
     {

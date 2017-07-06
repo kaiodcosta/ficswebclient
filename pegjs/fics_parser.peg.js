@@ -1,36 +1,3 @@
-{
-    var res = {
-        observe: false,
-        end_reached: false,
-        cmd_num: 0,
-        cmd_code: 0,
-        body: '',
-        style12: '',
-        s12: { ranks: [] },
-        game_info: {},
-        };
-}
-
-start =  header? body ender? {
-  return res;
-  }
-
-header = $("\x15" cmdnum "\x16" cmdcode "\x16")
-
-body = neither? observe? neither? game_situ? neither? style12? neither?
-//body = game_situ? neither? style12? neither?
-
-
-
-
-
-game_situ = "{Game " game_num " (" player " vs. " player ") " situ: $((!"}".)*) "}" _? r: $(result)? {
-    res.game_info.situ = situ;
-    res.game_info.result = r;
-}
-
-result = "1-0" / "0-1" / "\*" / "1/2-1/2"
-
 /*
 {Game 183 (GuestHKBG vs. GuestDMHB) GuestDMHB resigns} 1-0
 {Game 100 (Serlok vs. GuestYCMD) GuestYCMD forfeits by disconnection} 1-0
@@ -44,17 +11,51 @@ result = "1-0" / "0-1" / "\*" / "1/2-1/2"
 {Game 116 (robotvinik vs. CheckJohnson) Game aborted on move 1} *
 {Game 116 (robotvinik vs. CheckJohnson) Game aborted on move 1} *
 {Game 240 (robotvinik vs. CheckJohnson) Game drawn by mutual agreement} 1/2-1/2
-
 */
 
 
+{
+    var res = {
+        observe: false,
+        unobserve: false,
+        end_reached: false,
+        cmd_num: 0,
+        cmd_code: 0,
+        body: '',
+        fullbody: '',
+        style12: '',
+        s12: { ranks: [] },
+        game_info: {},
+        };
+}
+
+start =  header? body ender? {
+  return res;
+  }
+
+header = $("\x15" cmdnum "\x16" cmdcode "\x16")
+
+body = fb: $(neither? something? neither? something? neither? something? neither?) {
+    res.fullbody = fb;
+}
+
+something = observe / game_situ / style12 / unobserve
+
+neither = bod: $( (!(something / "\x17") .)* )  {  
+  res.body = res.body + bod; }
 
 
+unobserve = "Removing game " + game_num + " from observation list." {
+    res.unobserve = true;
+}
 
 
+game_situ = "{Game " game_num " (" player " vs. " player ") " situ: $((!"}".)*) "}" _? r: $(result)? {
+    res.game_info.situ = situ;
+    res.game_info.result = r;
+}
 
-
-
+result = "1-0" / "0-1" / "\*" / "1/2-1/2"
 
 ender = "\x17" {
   res.end_reached=true; }
@@ -115,12 +116,27 @@ inc = i:number {
 
 number = $([0-9]+)
 
-neither = bod: $( (!(observe / game_situ / style12 / "\x17") .)* )  {  
-  res.body = res.body + bod; }
-
-
 _ = " "+
+
 newl = [\n\r]+
+
+
+
+
+style12 = x: $("<12>" _ s12_rank _ s12_rank _ s12_rank _ s12_rank 
+                 _ s12_rank _ s12_rank _ s12_rank _ s12_rank 
+                 _ s12_whose_move _ s12_epfile 
+                 _ s12_w_kcast _ s12_w_qcast _ s12_b_kcast _ s12_b_qcast 
+                 _ s12_moves_since_ir _ s12_game_num 
+                 _ s12_w_name _ s12_b_name 
+                 _ s12_my_rel 
+                 _ s12_dur _ s12_inc _ s12_w_mat _ s12_b_mat 
+                 _ s12_w_clock _ s12_b_clock _ s12_move_num 
+                 _ s12_move_note _ s12_move_time _ s12_move_note_short 
+                 _ s12_board_flip
+                 (!"\n" .)*)  { res.style12 = x }
+
+
 s12_rank = x: $([\-PpRrNnBbQqKk][\-PpRrNnBbQqKk][\-PpRrNnBbQqKk][\-PpRrNnBbQqKk]
             [\-PpRrNnBbQqKk][\-PpRrNnBbQqKk][\-PpRrNnBbQqKk][\-PpRrNnBbQqKk])  { if (res.s12.ranks.length < 8) res.s12.ranks.push(x); }
 
@@ -157,17 +173,4 @@ s12_move_time = x: $( [^ ]+ )  { res.s12.move_time = x; }
 s12_move_note_short = x: $( [^ ]+ )  { res.s12.move_note_short = x; }
 
 s12_board_flip = x: [01]  { res.s12.board_flip = parseInt(x); }
-
-style12 = x: $("<12>" _ s12_rank _ s12_rank _ s12_rank _ s12_rank 
-                 _ s12_rank _ s12_rank _ s12_rank _ s12_rank 
-                 _ s12_whose_move _ s12_epfile 
-                 _ s12_w_kcast _ s12_w_qcast _ s12_b_kcast _ s12_b_qcast 
-                 _ s12_moves_since_ir _ s12_game_num 
-                 _ s12_w_name _ s12_b_name 
-                 _ s12_my_rel 
-                 _ s12_dur _ s12_inc _ s12_w_mat _ s12_b_mat 
-                 _ s12_w_clock _ s12_b_clock _ s12_move_num 
-                 _ s12_move_note _ s12_move_time _ s12_move_note_short 
-                 _ s12_board_flip
-                 (!"\n" .)*)  { res.style12 = x }
 
