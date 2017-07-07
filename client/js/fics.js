@@ -86,6 +86,12 @@ ficswrap.on("result", function(msg) {
         var game = gamemap.get(game_num);
         game.result = ficsobj.game_info.result;
         game.situ = ficsobj.game_info.situ;
+        console.log('33333333333333333333');
+        console.log(game.result);
+        if (['1-0','0-1','1/2-1/2'].indexOf(game.result) != -1) {
+            stopClocks(game_num);
+            console.log('clocks should be stopped');
+        }
         showResult(game_num);
     }
 
@@ -106,7 +112,9 @@ ficswrap.on("result", function(msg) {
             var move_info = game.chess.move(ficsobj.s12.move_note_short, {sloppy:true});
             if (move_info) {
                 game.s12 = ficsobj.s12;
-                runClock(game_num);
+                if (['1-0','0-1','1/2-1/2'].indexOf(game.result) === -1) {
+                    runClock(game_num);
+                }
                 game.movetimes[new_move_index] = ficsobj.s12.move_time;
                 game.fens[new_move_index] = game.chess.fen().split(/\s+/)[0];
                 appendToMoveList(game_num, new_move_index);
@@ -121,7 +129,8 @@ ficswrap.on("result", function(msg) {
 
     if (ficsobj.body.length && showout) 
     {
-        $('<pre>' + ficsobj.body + '</pre>').appendTo($('#shellout'));
+        $('#shellout2').append(ficsobj.fullbody + '\n\n');
+        //$('<pre>' + ficsobj.body + '</pre>').appendTo($('#shellout'));
         $('#shellout').scrollTop($('#shellout').prop('scrollHeight'));
     }
 });
