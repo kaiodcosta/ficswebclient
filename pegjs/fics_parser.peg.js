@@ -39,7 +39,7 @@ body = fb: $(neither? something? neither? something? neither? something? neither
     res.fullbody = fb;
 }
 
-something = observe / game_situ / style12 / unobserve
+something = observe / game_situ / style12 / unobserve / creating
 
 neither = bod: $( (!(something / "\x17") .)* )  {  
   res.body = res.body + bod; }
@@ -51,6 +51,9 @@ unobserve = "Removing game " + game_num + " from observation list." {
 
 
 game_situ = "{Game " game_num " (" player " vs. " player ") " situ: $((!"}".)*) "}" _? r: $(result)? {
+    if (/^Creating /.test(situ)) {
+        res.observe = true;
+    }
     res.game_info.situ = situ;
     res.game_info.result = r;
 }
@@ -70,6 +73,7 @@ observe = "You are now observing game" _ game_num "." newl "Game" _ game_num ":"
   res.observe = true;
   }
 
+creating = "Creating: " game_info 
 
 game_num = gn:$([1-9][0-9]*) {
     res.game_num = gn;
@@ -155,7 +159,7 @@ s12_game_num = x: $(game_num)  { res.s12.game_num = x; }
 s12_w_name = x: $( [^ ]+ )  { res.s12.w_name = x; }
 s12_b_name = x: $( [^ ]+ )  { res.s12.b_name = x; }
 
-s12_my_rel = x: $([\-0-7]+)  { res.s12.my_rel = parseInt(x); }
+s12_my_rel = x: $([\-0-7]+)  { res.s12.my_rel = x; }
 
 s12_dur = x: $([0-9]+)  { res.s12.dur = parseInt(x); }
 s12_inc = x: $([0-9]+)  { res.s12.inc = parseInt(x); }

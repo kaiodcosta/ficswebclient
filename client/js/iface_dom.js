@@ -199,21 +199,34 @@ function renderGame(game_num) {
 
     observe_div.appendTo($('#games_div'));
 
-    renderPlayersDOM(game_num);
     game.board = new ChessBoard('board_' + game_num, {
         position: game.chess.fen().split(/\s+/)[0],
+        draggable:true,
+        onDragStart : function(source, piece, pos, orientation) {
+            if (game.s12.my_rel != '1') {
+                return false;
+            }
+            return true;
+        },
         onDrop : function(source, target, piece, newPos, oldPos, orientation) {
             var valid_move = game.chess.move({ from: source, to: target });
             if (!valid_move) {
                 return 'snapback';
             }
-            game.fens[game.chess.history().length - 1] = game.chess.fen().split(/\s+/)[0];
-            appendToMoveList(game_num, game.chess.history().length-1, goto_move=true);
+            game.chess.undo();
+            //game.fens[game.chess.history().length - 1] = game.chess.fen().split(/\s+/)[0];
+            //appendToMoveList(game_num, game.chess.history().length-1, goto_move=true);
             focus_game_num = game_num;
-            runClock(game_num);
+            ficswrap.emit('command',valid_move.san);
+            //runClock(game_num);
         },
-        draggable:true
     });
+    if ( (game.s12.whose_move === 'B' && game.s12.my_rel === '1') || (game.s12.whose_move === 'W' && game.s12.my_rel === '-1') ) {
+        game.board.flip();
+        game.top_is_black = false;
+    }
+
+    renderPlayersDOM(game_num);
 }
 
 
@@ -246,7 +259,7 @@ function renderSoughtList(lines) {
             li.on({
                 click: function() {
                     li.css('color', 'cyan');
-                    //ficswrap.emit('command', 'play ' + gamenum); 
+                    ficswrap.emit('command', 'play ' + gamenum); 
                     return false;
                 }
             }).appendTo($('#lists'))
