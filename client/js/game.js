@@ -26,7 +26,7 @@ class Game {
                 'Black', this.black_player, 
                 'TimeControl', s12.dur + '+' + s12.inc,
                 'WhiteElo', this.white_rating,
-                'BlackElo', this.black_rating,
+                'BlackElo', this.black_rating
                 );
 
         this.startfen = this.chess.fen().split(/\s+/)[0];
