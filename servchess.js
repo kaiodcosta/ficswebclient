@@ -92,10 +92,10 @@ io.on('connection', function(socket) {
                         });
 
                         stream.on("error", (error) => console.log('EERRROOOORRRR:::   '+error));
+                        socket.emit('logged_in');
                     });
                 });
 
-            if (prompt) { socket.emit('logged_in') }
 
         }).catch(e => console.log('e is ' +e));
     });

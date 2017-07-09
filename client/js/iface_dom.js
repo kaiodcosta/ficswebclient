@@ -120,6 +120,15 @@ function appendToMoveList(game_num, i, goto_move = false, animate=false) {
     }
 }
 
+function highlightSquares(board_div, color, move=null, clear=false) {
+    board_div.find('.square-55d63').removeClass('highlight-square-'+color);
+    if (move && !clear) {
+        board_div.find('.square-' + move.to).addClass('highlight-square-'+color);
+        board_div.find('.square-' + move.from).addClass('highlight-square-'+color);
+    }
+}
+
+
 
 function goToMove(game_num, i, animate=false) {
     var game = gamemap.get(game_num);
@@ -132,10 +141,14 @@ function goToMove(game_num, i, animate=false) {
         
         var mv = game.chess.history({verbose: true})[i];
         var board_div = $('#board_'+game_num);
+
+        highlightSquares(board_div, 'cyan', move=mv);
+
+        /*
         board_div.find('.square-55d63').removeClass('highlight-square');
         board_div.find('.square-' + mv.to).addClass('highlight-square');
         board_div.find('.square-' + mv.from).addClass('highlight-square');
-
+        */
 
 
         $('#move_' + game_num + '_' + i).addClass('highlight');;
@@ -146,14 +159,14 @@ function goToMove(game_num, i, animate=false) {
 }
 
 function showResult(game_num) {
-    console.log('in showResult');
+    //console.log('in showResult');
     var game = gamemap.get(game_num);
 
     if (game) {
-        console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdasd asd as das d');
+        //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdasd asd as das d');
         $('#result_'+game_num).html(game.situ + ' ' + game.result);
     } else {
-        console.log('game ' + game_num + ' does not exist');
+        console.log('game ' + game_num + ' does not exist in showResult');
     }
 }
 
@@ -221,22 +234,36 @@ function renderGame(game_num) {
         position: game.chess.fen().split(/\s+/)[0],
         draggable:true,
         onDragStart : function(source, piece, pos, orientation) {
-            if (game.s12.my_rel != '1') {
-                return false;
+            if (['-1','1'].indexOf(game.s12.my_rel) != -1) {
+                return true;
             }
-            return true;
+            return false;
         },
         onDrop : function(source, target, piece, newPos, oldPos, orientation) {
             var valid_move = game.chess.move({ from: source, to: target });
-            if (!valid_move) {
-                return 'snapback';
+            if (valid_move) {
+                game.chess.undo();
             }
-            game.chess.undo();
-            //game.fens[game.chess.history().length - 1] = game.chess.fen().split(/\s+/)[0];
-            //appendToMoveList(game_num, game.chess.history().length-1, goto_move=true);
-            focus_game_num = game_num;
-            ficswrap.emit('command',valid_move.san);
-            //runClock(game_num);
+            if (game.s12.my_rel === '1') {
+                if (!valid_move) {
+                    return 'snapback';
+                } else {
+                    //console.log('actual valid move');
+                    //console.log(valid_move);
+                    ficswrap.emit('command',valid_move.san);
+                }
+            } else if (game.s12.my_rel === '-1') {
+                if (source && target && source != target) {
+                    var mv = {}
+                    mv.from = source;
+                    mv.to = target;
+                    console.log('premove set:');
+                    console.log(mv);
+                    game.premove = {from: mv.from, to: mv.to};
+                    highlightSquares($('#board_'+game_num), 'red', move=mv);
+                    return 'snapback'
+                }
+            }
         },
     });
     if ( (game.s12.whose_move === 'B' && game.s12.my_rel === '1') || (game.s12.whose_move === 'W' && game.s12.my_rel === '-1') ) {
@@ -249,11 +276,11 @@ function renderGame(game_num) {
 
 
 function renderGameList(lines) {
-    $('#lists').empty();
+    $('#lists2').empty();
     lines.forEach(x => {
         if (x.replace(/[\s\n\t\r\x07]*/g,'')) {
             var gamenum = x.replace(/^\s+|\s+$/g, '').split(/\s+/)[0];
-            var li = $('<a href="#" class="list-item">'+x+'</a><br />');
+            var li = $('<a href="#" class="list-item">'+x+'</a>');
             li.css('color', 'orange');
             li.on({
                 click: function() {
@@ -261,18 +288,18 @@ function renderGameList(lines) {
                     ficswrap.emit('command', 'observe ' + gamenum); 
                     return false;
                 }
-            }).appendTo($('#lists'))
+            }).appendTo('#lists2');
         }
     });
 }
 
 
 function renderSoughtList(lines) {
-    $('#lists').empty();
+    $('#lists2').empty();
     lines.forEach(x => {
         if (x.replace(/[\s\n\t\r\x07]*/g,'')) {
             var gamenum = x.replace(/^\s+|\s+$/g, '').split(/\s+/)[0];
-            var li = $('<a href="#" class="list-item">'+x+'</a><br />');
+            var li = $('<a href="#" class="list-item">'+x+'</a>');
             li.css('color', 'orange');
             li.on({
                 click: function() {
@@ -280,18 +307,18 @@ function renderSoughtList(lines) {
                     ficswrap.emit('command', 'play ' + gamenum); 
                     return false;
                 }
-            }).appendTo($('#lists'))
+            }).appendTo($('#lists2'))
         }
     });
 }
 
 
 function renderMatchForm() {
-    $('#lists').empty();
+    $('#lists2').empty();
     var player_input = $('<input type="text" name="player_name" id="match_player" size="20" />');
     var submit = $('<input type="button" value="challenge" />');
-    player_input.appendTo($('#lists'));
-    submit.appendTo($('#lists'));
+    player_input.appendTo($('#lists2'));
+    submit.appendTo($('#lists2'));
     submit.on('click', function() {
         ficswrap.emit('command', 'match ' + player_input.val());
     });
@@ -376,6 +403,8 @@ $(document).ready(function(){
     $('#sought').prop('hidden', true);
     $('#match').prop('hidden', true);
     $('#seek').prop('hidden', true);
+    $('#unseek').prop('hidden', true);
+    $('#getgame').prop('hidden', true);
     $('#resizer').prop('hidden', true);
 
     $('#games').on('click', function(e) {
@@ -390,8 +419,17 @@ $(document).ready(function(){
         renderMatchForm();
     });
 
+    $('#getgame').on('click', function(e) {
+        ficswrap.emit('command', 'getgame');
+    });
+
     $('#seek').on('click', function(e) {
-        renderSeekForm();
+        ficswrap.emit('command', 'seek');
+        //renderSeekForm();
+    });
+
+    $('#unseek').on('click', function(e) {
+        ficswrap.emit('command', 'unseek');
     });
 
     function loginFICS() {

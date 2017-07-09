@@ -188,3 +188,70 @@ html, body {
     -moz-box-shadow: inset 0 0 3px 3px green;
     box-shadow: inset 0 0 3px 3px green;  
 }
+
+.list-item {
+    text-decoration: none;
+}
+.highlight-square-blue{
+    -webkit-box-shadow: inset 0 0 3px 3px blue;
+    -moz-box-shadow: inset 0 0 3px 3px blue;
+    box-shadow: inset 0 0 3px 3px blue;
+}
+
+
+.highlight-square-green{
+    -webkit-box-shadow: inset 0 0 3px 3px green;
+    -moz-box-shadow: inset 0 0 3px 3px green;
+    box-shadow: inset 0 0 3px 3px green;
+}
+
+
+.highlight-square-red{
+    -webkit-box-shadow: inset 0 0 3px 3px red;
+    -moz-box-shadow: inset 0 0 3px 3px red;
+    box-shadow: inset 0 0 3px 3px red;
+}
+
+
+.highlight-square-yellow{
+    -webkit-box-shadow: inset 0 0 3px 3px yellow;
+    -moz-box-shadow: inset 0 0 3px 3px yellow;
+    box-shadow: inset 0 0 3px 3px yellow;
+}
+
+
+.highlight-square-magenta{
+    -webkit-box-shadow: inset 0 0 3px 3px magenta;
+    -moz-box-shadow: inset 0 0 3px 3px magenta;
+    box-shadow: inset 0 0 3px 3px magenta;
+}
+
+
+.highlight-square-cyan{
+    -webkit-box-shadow: inset 0 0 3px 3px cyan;
+    -moz-box-shadow: inset 0 0 3px 3px cyan;
+    box-shadow: inset 0 0 3px 3px cyan;
+}
+
+
+.highlight-square-lime{
+    -webkit-box-shadow: inset 0 0 3px 3px lime;
+    -moz-box-shadow: inset 0 0 3px 3px lime;
+    box-shadow: inset 0 0 3px 3px lime;
+}
+
+
+.highlight-square-purple{
+    -webkit-box-shadow: inset 0 0 3px 3px purple;
+    -moz-box-shadow: inset 0 0 3px 3px purple;
+    box-shadow: inset 0 0 3px 3px purple;
+}
+
+
+.highlight-square-orange{
+    -webkit-box-shadow: inset 0 0 3px 3px orange;
+    -moz-box-shadow: inset 0 0 3px 3px orange;
+    box-shadow: inset 0 0 3px 3px orange;
+}
+
+

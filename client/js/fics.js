@@ -13,6 +13,7 @@
 #define BLK_SOUGHT 157
 #define BLK_UNOBSERVE 138
 #define BLK_UNSEEK 156
+#define BLK_VARIABLES 143
 #define BLK_WITHDRAW 147
 */
 
@@ -23,17 +24,20 @@ ficswrap.on("logged_in", function(msg) {
     $('#shellout').show();
     $('#shellin').show();
     $('#games').prop('hidden', false);
+    $('#getgame').prop('hidden', false);
     $('#sought').prop('hidden', false);
     $('#match').prop('hidden', false);
     $('#seek').prop('hidden', false);
+    $('#unseek').prop('hidden', false);
     $('#resizer').prop('hidden', false);
+    ficswrap.emit('command', 'variables');
 });
 
 ficswrap.on("result", function(msg) {
     var ficsobj = window.FICSPARSER.parse(msg);
     var showout = false;
 
-    console.log(ficsobj);
+    //console.log(ficsobj);
     
     if (ficsobj.cmd_code) {
         cmd_code = ficsobj.cmd_code;
@@ -45,6 +49,10 @@ ficswrap.on("result", function(msg) {
             // sought command result
             } else if (ficsobj.cmd_code === 157) {
                 renderSoughtList(ficsobj.body.split('\n'));
+
+            // variables command result
+            } else if (ficsobj.cmd_code === 143) {
+                //console.log(ficsobj.fullbody);
 
             // moves command result
             } else if (ficsobj.cmd_code === 77) {
@@ -86,11 +94,11 @@ ficswrap.on("result", function(msg) {
         var game = gamemap.get(game_num);
         game.result = ficsobj.game_info.result;
         game.situ = ficsobj.game_info.situ;
-        console.log('33333333333333333333');
-        console.log(game.result);
+        //console.log('33333333333333333333');
+        //console.log(game.result);
         if (['1-0','0-1','1/2-1/2'].indexOf(game.result) != -1) {
             stopClocks(game_num);
-            console.log('clocks should be stopped');
+            //console.log('clocks should be stopped');
         }
         showResult(game_num);
     }
@@ -100,12 +108,17 @@ ficswrap.on("result", function(msg) {
         gamemap.set(game_num, new Game(ficsobj.s12, ficsobj.game_info));
         ficswrap.emit('command', 'moves ' + game_num);
     } else if (ficsobj.style12) {
+        console.log(ficsobj.style12);
+        console.log(ficsobj.s12);
+        console.log('s12 move_num is ' +ficsobj.s12.move_num);
+        console.log('s12 whose_move is ' +ficsobj.s12.whose_move);
+        console.log('getMoveIndexFromS12 is ' +getMoveIndexFromS12(ficsobj.s12));
         var game_num = ficsobj.s12.game_num;
         var game = gamemap.get(game_num);
 
         if (game.chess.history().length != getMoveIndexFromS12(ficsobj.s12)) {
-            console.log('xxxxxxxxxxxxxxxxxx  -- something wrong, calling moves');
-            ficswrap.emit('command', 'moves '+game_num);
+            console.log('chess says '+game.chess.history().length + ' but s12 says ' + getMoveIndexFromS12(ficsobj.s12) +', doing nothing');
+            //ficswrap.emit('command', 'moves '+game_num);
         } else {
             var new_move_index = game.chess.history().length;
             
@@ -122,9 +135,28 @@ ficswrap.on("result", function(msg) {
                     goToMove(game_num, new_move_index, animate=true);
                 }
             }
+
+            if (ficsobj.s12.my_rel === '1' && game.premove) {
+                var valid_move = game.chess.move({ from: game.premove.from, to: game.premove.to });
+                console.log('the attempted premove is ');
+                console.log(valid_move);
+
+
+                //console.log(valid_move);
+                game.premove = null;
+                highlightSquares($('#board_'+game_num), 'red', clear=true);
+                if (valid_move) {
+                    game.chess.undo();
+                    console.log('actual valid premove, calling it');
+                    ficswrap.emit('command',valid_move.san);
+                }
+
+            }
+
+
         }
 
-        showout = false;
+        showout = true;
     }
 
     if (ficsobj.body.length && showout) 
