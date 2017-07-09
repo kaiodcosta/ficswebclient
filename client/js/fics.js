@@ -137,8 +137,29 @@ ficswrap.on("result", function(msg) {
             }
 
             if (ficsobj.s12.my_rel === '1' && game.premove) {
-                var valid_move = game.chess.move({ from: game.premove.from, to: game.premove.to });
+                var source = game.premove.from;
+                var target = game.premove.to;
+                var piece = game.premove.piece;
+                var mv = { from: source, to: target };
+
+                if (/[18]$/.test(target) && /[pP]/.test(piece)) {
+                    var choices = game.chess.moves({verbose:true});
+                    for (var i=0; i<choices.length; i++) {
+                        m = choices[i];
+                        if (m.from === source && m.to === target) {
+                            mv.promotion = 'q';
+                            break;
+                        }
+                    }
+                }
+
+                var valid_move = game.chess.move(mv);
                 console.log('the attempted premove is ');
+                console.log(source);
+                console.log(target);
+                console.log(piece);
+                console.log(mv);
+                console.log('result is: ')
                 console.log(valid_move);
 
 

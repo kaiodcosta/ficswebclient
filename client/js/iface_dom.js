@@ -240,7 +240,21 @@ function renderGame(game_num) {
             return false;
         },
         onDrop : function(source, target, piece, newPos, oldPos, orientation) {
-            var valid_move = game.chess.move({ from: source, to: target });
+            var mv = { from: source, to: target };
+            console.log('piece is ' +piece);
+            if (/[18]$/.test(target) && /[pP]/.test(piece)) {
+                var choices = game.chess.moves({verbose:true});
+                for (var i=0; i<choices.length; i++) {
+                    m = choices[i];
+                    if (m.from === source && m.to === target) {
+                        mv.promotion = 'q';
+                        break;
+                    }
+                }
+            }
+            var valid_move = game.chess.move(mv);
+            console.log('onDrop: ');
+            console.log(valid_move);
             if (valid_move) {
                 game.chess.undo();
             }
@@ -257,9 +271,10 @@ function renderGame(game_num) {
                     var mv = {}
                     mv.from = source;
                     mv.to = target;
+                    mv.piece = piece;
                     console.log('premove set:');
                     console.log(mv);
-                    game.premove = {from: mv.from, to: mv.to};
+                    game.premove = mv;
                     highlightSquares($('#board_'+game_num), 'red', move=mv);
                     return 'snapback'
                 }
