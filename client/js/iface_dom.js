@@ -360,7 +360,58 @@ function resize(e){
 }
 
 
+
+
+
+
+
+
+
+
+var soundmap = {
+    ambience: [],
+    gong: [],
+    moves: [],
+    captures: [],
+    checks: []
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 $(document).ready(function(){
+    $.ajax({url: "/soundmap", success: function(result){
+        result = JSON.parse(result);
+        for (i=0; i<result.ambience.length; i++) {
+            soundmap.ambience.push( new Howl({ src: ['/sound/ambience/' + result.ambience[i]] }) );
+        }
+        for (i=0; i<result.gong.length; i++) {
+            soundmap.gong.push( new Howl({ src: ['/sound/gong/' + result.gong[i]] }) );
+        }
+        for (i=0; i<result.moves.length; i++) {
+            soundmap.moves.push( new Howl({ src: ['/sound/moves/' + result.moves[i]] }) );
+        }
+        for (i=0; i<result.captures.length; i++) {
+            soundmap.captures.push( new Howl({ src: ['/sound/captures/' + result.captures[i]] }) );
+        }
+        for (i=0; i<result.checks.length; i++) {
+            soundmap.checks.push( new Howl({ src: ['/sound/checks/' + result.checks[i]] }) );
+        }
+    }});
+
     $('#resizer').on('mousedown', function(e) {
         mouseY = e.pageY;
         e.preventDefault();

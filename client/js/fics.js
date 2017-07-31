@@ -97,6 +97,7 @@ ficswrap.on("result", function(msg) {
         //console.log('33333333333333333333');
         //console.log(game.result);
         if (['1-0','0-1','1/2-1/2'].indexOf(game.result) != -1) {
+            soundmap.gong[Math.floor(Math.random() * soundmap.gong.length)].play();
             stopClocks(game_num);
             //console.log('clocks should be stopped');
         }
@@ -124,6 +125,29 @@ ficswrap.on("result", function(msg) {
             
             var move_info = game.chess.move(ficsobj.s12.move_note_short, {sloppy:true});
             if (move_info) {
+                if (game.chess.in_check()) {
+                    soundmap.checks[Math.floor(Math.random() * soundmap.checks.length)].play();
+                } else if (['n','b','k','q','p'].includes(move_info.flags)) {
+                    soundmap.moves[Math.floor(Math.random() * soundmap.moves.length)].play();
+                } else {
+                    soundmap.captures[Math.floor(Math.random() * soundmap.captures.length)].play();
+                }
+
+                /*
+
+                'n' - a non-capture
+                'b' - a pawn push of two squares
+                'k' - kingside castling
+                'q' - queenside castling
+                'p' - a promotion
+
+                'e' - an en passant capture
+                'c' - a standard capture
+
+                soundmap.ambience[Math.floor(Math.random() * soundmap.ambience.length)].play();
+                soundmap.gong[Math.floor(Math.random() * soundmap.gong.length)].play();
+                */
+
                 game.s12 = ficsobj.s12;
                 if (['1-0','0-1','1/2-1/2'].indexOf(game.result) === -1) {
                     runClock(game_num);

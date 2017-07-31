@@ -1,10 +1,48 @@
 #! /usr/local/bin/node
 
+
+const fs = require('fs');
+
+
 // express
 var express = require('express');
 var app = express();
 
 app.use(express.static('client'));
+app.get('/soundmap', function (req, res) {
+    var obj = {};
+    obj.ambience= [];
+    obj.gong= [];
+    obj.moves = [];
+    obj.captures = [];
+    obj.checks = [];
+    fs.readdir('client/sound/ambience', (err, files) => {
+        if (files) files.forEach(file => {
+            obj.ambience.push(file);
+        });
+        fs.readdir('client/sound/gong', (err, files) => {
+            if (files) files.forEach(file => {
+                obj.gong.push(file);
+            });
+            fs.readdir('client/sound/moves', (err, files) => {
+                if (files) files.forEach(file => {
+                    obj.moves.push(file);
+                });
+                fs.readdir('client/sound/captures', (err, files) => {
+                    if (files) files.forEach(file => {
+                        obj.captures.push(file);
+                    });
+                    fs.readdir('client/sound/checks', (err, files) => {
+                        if (files) files.forEach(file => {
+                            obj.checks.push(file);
+                        });
+                        res.send(JSON.stringify(obj))
+                    })
+                })
+            })
+        })
+    })
+})
 
 var http = require('http').Server(app);
 var port = 3000;
