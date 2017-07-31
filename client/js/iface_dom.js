@@ -144,13 +144,6 @@ function goToMove(game_num, i, animate=false) {
 
         highlightSquares(board_div, 'cyan', move=mv);
 
-        /*
-        board_div.find('.square-55d63').removeClass('highlight-square');
-        board_div.find('.square-' + mv.to).addClass('highlight-square');
-        board_div.find('.square-' + mv.from).addClass('highlight-square');
-        */
-
-
         $('#move_' + game_num + '_' + i).addClass('highlight');;
     }
     if (i == game.chess.history().length -1) {
@@ -159,11 +152,9 @@ function goToMove(game_num, i, animate=false) {
 }
 
 function showResult(game_num) {
-    //console.log('in showResult');
     var game = gamemap.get(game_num);
 
     if (game) {
-        //console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdasd asd as das d');
         $('#result_'+game_num).html(game.situ + ' ' + game.result);
     } else {
         console.log('game ' + game_num + ' does not exist in showResult');
@@ -262,8 +253,6 @@ function renderGame(game_num) {
                 if (!valid_move) {
                     return 'snapback';
                 } else {
-                    //console.log('actual valid move');
-                    //console.log(valid_move);
                     ficswrap.emit('command',valid_move.san);
                 }
             } else if (game.s12.my_rel === '-1') {
@@ -281,6 +270,7 @@ function renderGame(game_num) {
             }
         },
     });
+
     if ( (game.s12.whose_move === 'B' && game.s12.my_rel === '1') || (game.s12.whose_move === 'W' && game.s12.my_rel === '-1') ) {
         game.board.flip();
         game.top_is_black = false;
@@ -360,14 +350,6 @@ function resize(e){
 }
 
 
-
-
-
-
-
-
-
-
 var soundmap = {
     ambience: [],
     gong: [],
@@ -375,21 +357,6 @@ var soundmap = {
     captures: [],
     checks: []
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 $(document).ready(function(){
@@ -512,7 +479,6 @@ $(document).ready(function(){
     
     $('#login_button').on('click', function(e) { 
         loginFICS();
-
     });
 
 

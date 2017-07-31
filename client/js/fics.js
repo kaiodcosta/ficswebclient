@@ -37,8 +37,6 @@ ficswrap.on("result", function(msg) {
     var ficsobj = window.FICSPARSER.parse(msg);
     var showout = false;
 
-    //console.log(ficsobj);
-    
     if (ficsobj.cmd_code) {
         cmd_code = ficsobj.cmd_code;
         if (ficsobj.end_reached) {
@@ -94,12 +92,10 @@ ficswrap.on("result", function(msg) {
         var game = gamemap.get(game_num);
         game.result = ficsobj.game_info.result;
         game.situ = ficsobj.game_info.situ;
-        //console.log('33333333333333333333');
-        //console.log(game.result);
+
         if (['1-0','0-1','1/2-1/2'].indexOf(game.result) != -1) {
             soundmap.gong[Math.floor(Math.random() * soundmap.gong.length)].play();
             stopClocks(game_num);
-            //console.log('clocks should be stopped');
         }
         showResult(game_num);
     }
@@ -132,21 +128,6 @@ ficswrap.on("result", function(msg) {
                 } else {
                     soundmap.captures[Math.floor(Math.random() * soundmap.captures.length)].play();
                 }
-
-                /*
-
-                'n' - a non-capture
-                'b' - a pawn push of two squares
-                'k' - kingside castling
-                'q' - queenside castling
-                'p' - a promotion
-
-                'e' - an en passant capture
-                'c' - a standard capture
-
-                soundmap.ambience[Math.floor(Math.random() * soundmap.ambience.length)].play();
-                soundmap.gong[Math.floor(Math.random() * soundmap.gong.length)].play();
-                */
 
                 game.s12 = ficsobj.s12;
                 if (['1-0','0-1','1/2-1/2'].indexOf(game.result) === -1) {
@@ -186,8 +167,6 @@ ficswrap.on("result", function(msg) {
                 console.log('result is: ')
                 console.log(valid_move);
 
-
-                //console.log(valid_move);
                 game.premove = null;
                 highlightSquares($('#board_'+game_num), 'red', clear=true);
                 if (valid_move) {
@@ -195,10 +174,7 @@ ficswrap.on("result", function(msg) {
                     console.log('actual valid premove, calling it');
                     ficswrap.emit('command',valid_move.san);
                 }
-
             }
-
-
         }
 
         showout = true;
@@ -207,7 +183,6 @@ ficswrap.on("result", function(msg) {
     if (ficsobj.body.length && showout) 
     {
         $('#shellout2').append(ficsobj.fullbody + '\n\n');
-        //$('<pre>' + ficsobj.body + '</pre>').appendTo($('#shellout'));
         $('#shellout').scrollTop($('#shellout').prop('scrollHeight'));
     }
 });
