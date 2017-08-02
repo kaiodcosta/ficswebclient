@@ -221,7 +221,19 @@ function renderGame(game_num) {
 
     observe_div.appendTo($('#games_div'));
 
+    themes = Cookies.get('themes');
+    if (themes) { themes = JSON.parse(themes) };
+    theme = themes[Math.floor(Math.random() * themes.length)];
+
+    function pieceTheme(piece) {
+        if (piece.search(/w/) !== -1) {
+            return 'img/chesspieces/' + theme.white_pieces + '/' + piece + '.png';
+        }
+        return 'img/chesspieces/' + theme.black_pieces + '/' + piece + '.png';
+    }
+
     game.board = new ChessBoard('board_' + game_num, {
+        pieceTheme: pieceTheme,
         position: game.chess.fen().split(/\s+/)[0],
         draggable:true,
         onDragStart : function(source, piece, pos, orientation) {
@@ -271,6 +283,22 @@ function renderGame(game_num) {
         },
     });
 
+
+    console.log('theme is ');
+    console.log(theme);
+
+    $('#board_'+game_num).find('.white-1e1d7').css('background-color', tinycolor(theme.light_rgba));
+    $('#board_'+game_num).find('.white-1e1d7').css('color', tinycolor(theme.dark_rgba));
+    $('#board_'+game_num).find('.black-3c85d').css('background-color', tinycolor(theme.dark_rgba));
+    $('#board_'+game_num).find('.black-3c85d').css('color', tinycolor(theme.light_rgba));
+
+    $('#board_'+game_num).find('.board-b72b1').css('background-image', theme.texture ? 'url(/textures/' + theme.texture + ')' : 'none');
+
+
+
+
+
+
     if ( (game.s12.whose_move === 'B' && game.s12.my_rel === '1') || (game.s12.whose_move === 'W' && game.s12.my_rel === '-1') ) {
         game.board.flip();
         game.top_is_black = false;
@@ -281,7 +309,9 @@ function renderGame(game_num) {
 
 
 function renderGameList(lines) {
-    $('#lists2').empty();
+    if (theme_board) { theme_board.destroy() }
+    $('#lists').empty();
+    $('<pre id="lists2"></pre>').appendTo($('#lists'));
     lines.forEach(x => {
         if (x.replace(/[\s\n\t\r\x07]*/g,'')) {
             var gamenum = x.replace(/^\s+|\s+$/g, '').split(/\s+/)[0];
@@ -300,7 +330,9 @@ function renderGameList(lines) {
 
 
 function renderSoughtList(lines) {
-    $('#lists2').empty();
+    if (theme_board) { theme_board.destroy() }
+    $('#lists').empty();
+    $('<pre id="lists2"></pre>').appendTo($('#lists'));
     lines.forEach(x => {
         if (x.replace(/[\s\n\t\r\x07]*/g,'')) {
             var gamenum = x.replace(/^\s+|\s+$/g, '').split(/\s+/)[0];
@@ -319,7 +351,9 @@ function renderSoughtList(lines) {
 
 
 function renderMatchForm() {
-    $('#lists2').empty();
+    if (theme_board) { theme_board.destroy() }
+    $('#lists').empty();
+    $('<pre id="lists2"></pre>').appendTo($('#lists'));
     var player_input = $('<input type="text" name="player_name" id="match_player" size="20" />');
     var submit = $('<input type="button" value="challenge" />');
     player_input.appendTo($('#lists2'));
@@ -331,9 +365,220 @@ function renderMatchForm() {
 
 
 function renderSeekForm() {
+    if (theme_board) { theme_board.destroy() }
     $('#lists').empty();
     $('<div>QWE</div>').appendTo($('#lists'));
 }
+
+
+function renderThemeConfig(cur_theme=null) {
+    if ( !cur_theme ) {
+        cur_theme = {
+            name: '',
+            dark_rgba: {r:202, g:138, b:48, a:1 },
+            light_rgba: {r:244, g:234, b:196, a:1},
+            texture: '',
+            white_pieces: 'wikipedia',
+            black_pieces: 'wikipedia'
+        };
+    }
+
+    function pieceTheme(piece) {
+        if (piece.search(/w/) !== -1) {
+            return 'img/chesspieces/' + cur_theme.white_pieces + '/' + piece + '.png';
+        }
+        return 'img/chesspieces/' + cur_theme.black_pieces + '/' + piece + '.png';
+    }
+
+    if (theme_board) {
+        theme_board.destroy();
+    }
+
+    $('#lists').empty();
+
+    $('<div id="theme_board"></div>').appendTo($('#lists'));
+    theme_board = new ChessBoard('theme_board', {pieceTheme: pieceTheme, position: 'start'});
+
+    $('#theme_board').find('.white-1e1d7').css('background-color', tinycolor(cur_theme.light_rgba));
+    $('#theme_board').find('.white-1e1d7').css('color', tinycolor(cur_theme.dark_rgba));
+    $('#theme_board').find('.black-3c85d').css('background-color', tinycolor(cur_theme.dark_rgba));
+    $('#theme_board').find('.black-3c85d').css('color', tinycolor(cur_theme.light_rgba));
+
+    $('#theme_board').find('.board-b72b1').css('background-image', cur_theme.texture ? 'url(/textures/' + cur_theme.texture + ')' : 'none');
+
+
+    var theme_div = $('<div>theme: </div>');
+    var theme_sel = $('<select id="themes"><option value=""></option></select>');
+    theme_sel.appendTo(theme_div);
+
+    themes = Cookies.get('themes');
+    if (themes) {
+        themes = JSON.parse(themes);
+        themes.forEach(t => {
+            var opt = $('<option>' + t.name + '</option>').appendTo(theme_sel).val(t);
+            opt.val(t.name);
+            opt.appendTo(theme_sel);
+        });
+    }
+    theme_sel.val(cur_theme.name);
+
+    theme_sel.on('change', function() {
+        var theme_name = $(this).val();
+        if (theme_name) { 
+            for (i=0; i<themes.length; i++) {
+                if (themes[i].name == theme_name) {
+                    cur_theme = themes[i];
+                    break;
+                }
+            }
+        } else { cur_theme.name = '' }
+        renderThemeConfig(cur_theme=cur_theme);
+    });
+
+    theme_div.appendTo($('#lists'));
+
+
+    var black_piece_div = $('<div>black pieces: </div>');
+    var black_piece_sel = $('<select id="black_pieces"></select>');
+    black_piece_sel.appendTo(black_piece_div);
+
+    piece_themes.forEach(txt => {
+        $('<option value="' + txt + '">' + txt + '</option>').appendTo(black_piece_sel);
+    });
+    black_piece_sel.val(cur_theme.black_pieces);
+
+    black_piece_sel.on('change', function() {
+        var ptheme = $(this).val();
+        cur_theme.black_pieces = ptheme;
+        theme_board.start(false);
+    });
+
+    black_piece_div.appendTo($('#lists'));
+
+
+    var white_piece_div = $('<div>white pieces: </div>');
+    var white_piece_sel = $('<select id="white_pieces"></select>');
+    white_piece_sel.appendTo(white_piece_div);
+
+    piece_themes.forEach(txt => {
+        $('<option value="' + txt + '">' + txt + '</option>').appendTo(white_piece_sel);
+    });
+    white_piece_sel.val(cur_theme.white_pieces);
+
+    white_piece_sel.on('change', function() {
+        var ptheme = $(this).val();
+        cur_theme.white_pieces = ptheme;
+        theme_board.start(false);
+    });
+
+    white_piece_div.appendTo($('#lists'));
+
+
+    var texture_div = $('<div>texture: </div>');
+    var texture_sel = $('<select id="textures"></select>');
+    texture_sel.appendTo(texture_div);
+
+    $('<option value=""></option>').appendTo(texture_sel);
+
+    board_textures.forEach(txt => {
+        $('<option value="' + txt + '">' + txt + '</option>').appendTo(texture_sel);
+    });
+    texture_sel.val(cur_theme.texture);
+
+    texture_sel.on('change', function() {
+        var txt_fname = $(this).val();
+        var img = 'none';
+        if ( txt_fname ) { img = 'url(/textures/' + txt_fname + ')' }
+        cur_theme.texture = txt_fname;    
+
+        console.log($('#theme_board').find('.board-b72b1').css('background-image', img));
+    });
+
+    texture_div.appendTo($('#lists'));
+
+
+    var colors_div = $('<div>colors: </div>');
+    $('<input type="text" id="light_rgba" />').appendTo(colors_div);
+    $('<input type="text" id="dark_rgba" />').appendTo(colors_div);
+    colors_div.appendTo('#lists');
+    $("#light_rgba").spectrum({
+            color: tinycolor(cur_theme.light_rgba),
+            showAlpha: true,
+            showPalette: false,
+            preferredFormat: 'rgb',
+            move: function(color) {
+                $('#theme_board').find('.white-1e1d7').css('background-color',color);
+                $('#theme_board').find('.black-3c85d').css('color',color);
+                cur_theme.light_rgba = {r: color._r, g:color._g, b:color._b, a:color._a };
+            },
+    });
+    $("#dark_rgba").spectrum({
+            color: tinycolor(cur_theme.dark_rgba),
+            showAlpha: true,
+            showPalette: false,
+            preferredFormat: 'rgb',
+            move: function(color) {
+                $('#theme_board').find('.white-1e1d7').css('color',color);
+                $('#theme_board').find('.black-3c85d').css('background-color',color);
+                cur_theme.dark_rgba = {r: color._r, g:color._g, b:color._b, a:color._a };
+            },
+    });
+
+
+    var newtheme_div = $('<div>new theme name: </div>');
+    var newtheme_text = $('<input type="text" id="new_theme" size="20" />');
+    newtheme_text.appendTo(newtheme_div);
+
+    newtheme_div.appendTo($('#lists'));
+
+
+    var save_div = $('<div><input type="button" id="save_butt" value="save theme" /></div>');
+
+    save_div.appendTo($('#lists'));
+
+    $('#save_butt').on('click', function() {
+        var the_name = null;
+        var newname = $.trim( $('#new_theme').val() );
+        
+        if ( newname ) { the_name = newname }
+        else if ( cur_theme.name ) { the_name = cur_theme.name }
+        else { 
+            alert('Theme needs a name in order save'); 
+            return;
+        }
+        
+        cur_theme.name = the_name;
+
+        if ( themes ) {
+            var found = 0;
+            for (i=0; i<themes.length; i++) {
+                if (themes[i].name == the_name) {
+                    themes[i] = cur_theme;
+                    found = 1;
+                    break;
+                }
+            }
+            if ( !found ) {themes.unshift(cur_theme) }
+        }
+        else { themes = [cur_theme] }
+
+        console.log(Cookies.set('themes', JSON.stringify(themes), {expires: 30000}));
+
+        themes = Cookies.get('themes');
+        if (themes) { themes = JSON.parse(themes) }
+
+        renderThemeConfig(cur_theme);
+    });
+}
+
+
+var theme_board = null;
+
+
+var board_textures = [];
+var piece_themes = [];
+
+var themes = [];
 
 
 var focus_game_num = '';
@@ -360,6 +605,18 @@ var soundmap = {
 
 
 $(document).ready(function(){
+    themes = Cookies.get('themes');
+    if (themes) { themes = JSON.parse(themes) }
+
+    $.ajax({url: "/txtlist", success: function(result){
+        board_textures = JSON.parse(result);
+        console.log(board_textures);
+        $.ajax({url: "/piecelist", success: function(result){
+            piece_themes = JSON.parse(result);
+            console.log(piece_themes);
+        }});
+    }});
+
     $.ajax({url: "/soundmap", success: function(result){
         result = JSON.parse(result);
         for (i=0; i<result.ambience.length; i++) {
@@ -437,6 +694,7 @@ $(document).ready(function(){
     $('#match').prop('hidden', true);
     $('#seek').prop('hidden', true);
     $('#unseek').prop('hidden', true);
+    $('#themes').prop('hidden', true);
     $('#getgame').prop('hidden', true);
     $('#resizer').prop('hidden', true);
 
@@ -463,6 +721,10 @@ $(document).ready(function(){
 
     $('#unseek').on('click', function(e) {
         ficswrap.emit('command', 'unseek');
+    });
+
+    $('#themes').on('click', function(e) {
+        renderThemeConfig();
     });
 
     function loginFICS() {

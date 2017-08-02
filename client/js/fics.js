@@ -29,6 +29,7 @@ ficswrap.on("logged_in", function(msg) {
     $('#match').prop('hidden', false);
     $('#seek').prop('hidden', false);
     $('#unseek').prop('hidden', false);
+    $('#themes').prop('hidden', false);
     $('#resizer').prop('hidden', false);
     ficswrap.emit('command', 'variables');
 });

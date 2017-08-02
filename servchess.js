@@ -9,6 +9,27 @@ var express = require('express');
 var app = express();
 
 app.use(express.static('client'));
+
+app.get('/txtlist', function (req, res) {
+    var txtlist = [];
+    fs.readdir('client/textures', (err, files) => {
+        if (files) files.forEach(file => {
+            txtlist.push(file);
+        });
+        res.send(JSON.stringify(txtlist))
+    })
+})
+
+app.get('/piecelist', function (req, res) {
+    var piecelist = [];
+    fs.readdir('client/img/chesspieces', (err, files) => {
+        if (files) files.forEach(file => {
+            piecelist.push(file);
+        });
+        res.send(JSON.stringify(piecelist))
+    })
+})
+
 app.get('/soundmap', function (req, res) {
     var obj = {};
     obj.ambience= [];
