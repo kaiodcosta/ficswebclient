@@ -187,6 +187,19 @@ function renderGame(game_num) {
     flip_button.click(function() {
         game.top_is_black = game.top_is_black ? false : true;
         game.board.flip();
+
+
+
+
+        $('#board_'+game_num).find('.white-1e1d7').css('background-color', tinycolor(game.theme.light_rgba));
+        $('#board_'+game_num).find('.white-1e1d7').css('color', tinycolor(game.theme.dark_rgba));
+        $('#board_'+game_num).find('.black-3c85d').css('background-color', tinycolor(game.theme.dark_rgba));
+        $('#board_'+game_num).find('.black-3c85d').css('color', tinycolor(game.theme.light_rgba));
+
+        $('#board_'+game_num).find('.board-b72b1').css('background-image', game.theme.texture ? 'url(/textures/' + game.theme.texture + ')' : 'none');
+        
+            
+            
         renderPlayersDOM(game_num);
     });
     var remove_button = $('<button type="button" id="remove_' + game_num + '"> Remove </button>');
@@ -223,17 +236,16 @@ function renderGame(game_num) {
 
     themes = Cookies.get('themes');
     if (themes) { themes = JSON.parse(themes) };
-    theme = themes[Math.floor(Math.random() * themes.length)];
+    game.theme = themes[Math.floor(Math.random() * themes.length)];
 
-    function pieceTheme(piece) {
-        if (piece.search(/w/) !== -1) {
-            return 'img/chesspieces/' + theme.white_pieces + '/' + piece + '.png';
-        }
-        return 'img/chesspieces/' + theme.black_pieces + '/' + piece + '.png';
-    }
+    console.log('theme is ');
+    console.log(game.theme);
+
+    console.log('theme are ');
+    console.log(themes);
 
     game.board = new ChessBoard('board_' + game_num, {
-        pieceTheme: pieceTheme,
+        pieceTheme: game.pieceTheme,
         position: game.chess.fen().split(/\s+/)[0],
         draggable:true,
         onDragStart : function(source, piece, pos, orientation) {
@@ -285,14 +297,14 @@ function renderGame(game_num) {
 
 
     console.log('theme is ');
-    console.log(theme);
+    console.log(game.theme);
 
-    $('#board_'+game_num).find('.white-1e1d7').css('background-color', tinycolor(theme.light_rgba));
-    $('#board_'+game_num).find('.white-1e1d7').css('color', tinycolor(theme.dark_rgba));
-    $('#board_'+game_num).find('.black-3c85d').css('background-color', tinycolor(theme.dark_rgba));
-    $('#board_'+game_num).find('.black-3c85d').css('color', tinycolor(theme.light_rgba));
+    $('#board_'+game_num).find('.white-1e1d7').css('background-color', tinycolor(game.theme.light_rgba));
+    $('#board_'+game_num).find('.white-1e1d7').css('color', tinycolor(game.theme.dark_rgba));
+    $('#board_'+game_num).find('.black-3c85d').css('background-color', tinycolor(game.theme.dark_rgba));
+    $('#board_'+game_num).find('.black-3c85d').css('color', tinycolor(game.theme.light_rgba));
 
-    $('#board_'+game_num).find('.board-b72b1').css('background-image', theme.texture ? 'url(/textures/' + theme.texture + ')' : 'none');
+    $('#board_'+game_num).find('.board-b72b1').css('background-image', game.theme.texture ? 'url(/textures/' + game.theme.texture + ')' : 'none');
 
 
 
@@ -301,6 +313,19 @@ function renderGame(game_num) {
 
     if ( (game.s12.whose_move === 'B' && game.s12.my_rel === '1') || (game.s12.whose_move === 'W' && game.s12.my_rel === '-1') ) {
         game.board.flip();
+
+
+
+
+        $('#board_'+game_num).find('.white-1e1d7').css('background-color', tinycolor(game.theme.light_rgba));
+        $('#board_'+game_num).find('.white-1e1d7').css('color', tinycolor(game.theme.dark_rgba));
+        $('#board_'+game_num).find('.black-3c85d').css('background-color', tinycolor(game.theme.dark_rgba));
+        $('#board_'+game_num).find('.black-3c85d').css('color', tinycolor(game.theme.light_rgba));
+
+        $('#board_'+game_num).find('.board-b72b1').css('background-image', game.theme.texture ? 'url(/textures/' + game.theme.texture + ')' : 'none');
+        
+            
+            
         game.top_is_black = false;
     }
 

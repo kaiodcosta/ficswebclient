@@ -40,6 +40,16 @@ class Game {
 
         this.current_move_index = -1;
         this.clocks = {w:null, b:null};
+
+        this.theme = null;
+        this.pieceTheme = (piece) => {
+            if (this.theme) {
+                if (piece.search(/w/) !== -1) {
+                    return 'img/chesspieces/' + this.theme.white_pieces + '/' + piece + '.png';
+                }
+                return 'img/chesspieces/' + this.theme.black_pieces + '/' + piece + '.png';
+            }
+        };
     }
 }
 
