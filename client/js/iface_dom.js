@@ -35,12 +35,16 @@ function runClock(game_num) {
     var not_whose_move = ['b','w'][game.chess.history().length % 2];
     if ( (game.top_is_black && whose_move === 'b') || (!game.top_is_black && whose_move === 'w') ) {
         $('#bottom_time_' + game_num).html(toMinutes(game.s12[not_whose_move+'_clock']));
-        $('#bottom_time_' + game_num).css('background-color', '#000000');
-        $('#top_time_' + game_num).css('background-color', '#555555');
+        $('#bottom_time_' + game_num).css('background-color', '#222222');
+        $('#bottom_time_' + game_num).css('color', 'lime');
+        $('#top_time_' + game_num).css('background-color', 'darkorange');
+        $('#top_time_' + game_num).css('color', 'indigo');
     } else {
         $('#top_time_' + game_num).html(toMinutes(game.s12[not_whose_move+'_clock']));
-        $('#top_time_' + game_num).css('background-color', '#000000');
-        $('#bottom_time_' + game_num).css('background-color', '#555555');
+        $('#top_time_' + game_num).css('background-color', '#222222');
+        $('#top_time_' + game_num).css('color', 'lime');
+        $('#bottom_time_' + game_num).css('background-color', 'darkorange');
+        $('#bottom_time_' + game_num).css('color', 'indigo');
     }
 
     if (game.chess.history().length > 1) {
