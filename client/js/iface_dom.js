@@ -1,7 +1,3 @@
-//function getMoveIndexFromS12(s12) {
-//    return ((s12.move_num-1) * 2) - (s12.whose_move == 'W' ? 1 : 0); 
-//}
-
 
 function toMinutes(seconds) {
 	var seconds = parseInt(seconds);
@@ -17,6 +13,7 @@ function toMinutes(seconds) {
 	return minutes + ':' + remaining_seconds
 }
 
+
 function stopClocks(game_num) {
     var game = gamemap.get(game_num);
     if (game) {
@@ -26,6 +23,7 @@ function stopClocks(game_num) {
         console.log('in stopClocks and game not found for game_num ' + game_num);
     }
 }
+
 
 function runClock(game_num) {
     var game = gamemap.get(game_num);
@@ -124,18 +122,14 @@ function appendToMoveList(game_num, i, goto_move = false, animate=false) {
     }
 }
 
+
 function highlightSquares(board_div, color, move=null, clear=false) {
     board_div.find('.square-55d63').removeClass('highlight-square-'+color);
     if (move && !clear) {
         board_div.find('.square-' + move.to).addClass('highlight-square-'+color);
         board_div.find('.square-' + move.from).addClass('highlight-square-'+color);
     }
-    console.log(board_div);
-    console.log(color);
-    console.log(move);
-    console.log(clear);
 }
-
 
 
 function goToMove(game_num, i, animate=false) {
@@ -160,17 +154,9 @@ function goToMove(game_num, i, animate=false) {
 
         
         var mv = game.chess.history({verbose: true})[i];
-        console.log('prewhat');
-        console.log(i);
-        console.log(game);
-        console.log(mv);
         var board_div = $('#board_'+game_num);
 
-        console.log('what');
-        //highlightSquares(board_div, 'yellow', move=mv);
         highlightSquares($('#board_'+game_num), 'yellow', move=mv);
-        console.log($('#board_'+game_num));
-        console.log('double what');
 
         $('#move_' + game_num + '_' + i).addClass('highlight');;
     }
@@ -216,18 +202,13 @@ function renderGame(game_num) {
         game.top_is_black = game.top_is_black ? false : true;
         game.board.flip();
 
-
-
-
         $('#board_'+game_num).find('.white-1e1d7').css('background-color', tinycolor(game.theme.light_rgba));
         $('#board_'+game_num).find('.white-1e1d7').css('color', tinycolor(game.theme.dark_rgba));
         $('#board_'+game_num).find('.black-3c85d').css('background-color', tinycolor(game.theme.dark_rgba));
         $('#board_'+game_num).find('.black-3c85d').css('color', tinycolor(game.theme.light_rgba));
 
         $('#board_'+game_num).find('.board-b72b1').css('background-image', game.theme.texture ? 'url(/textures/' + game.theme.texture + ')' : 'none');
-        
-            
-            
+
         renderPlayersDOM(game_num);
     });
     var remove_button = $('<button type="button" id="remove_' + game_num + '"> Remove </button>');
@@ -266,27 +247,11 @@ function renderGame(game_num) {
     if (themes) { themes = JSON.parse(themes) };
     game.theme = themes[Math.floor(Math.random() * themes.length)];
 
-    console.log('theme is ');
-    console.log(game.theme);
-
-    console.log('theme are ');
-    console.log(themes);
-
     game.board = new ChessBoard('board_' + game_num, {
         pieceTheme: game.pieceTheme,
         position: game.chess.fen().split(/\s+/)[0],
         draggable:true,
         onDragStart : function(source, piece, pos, orientation) {
-            /*
-            if (['-1','1'].indexOf(game.s12.my_rel) != -1) {
-                return true;
-            }
-            return false;
-            */
-			//if (piece[0] === game.humanColor()) return true;
-            console.log('please');
-            console.log(piece);
-            console.log(game.human_color);
 			if (piece[0] === game.human_color) {
                 game.empty_square = source;
                 game.empty_piece = piece;
@@ -309,7 +274,6 @@ function renderGame(game_num) {
 
             }
             var mv = { from: source, to: target };
-            console.log('piece is ' +piece);
             if (/[18]$/.test(target) && /[pP]/.test(piece)) {
                 var choices = game.chess.moves({verbose:true});
                 for (var i=0; i<choices.length; i++) {
@@ -321,8 +285,6 @@ function renderGame(game_num) {
                 }
             }
             var valid_move = game.chess.move(mv);
-            console.log('onDrop: ');
-            console.log(valid_move);
             if (valid_move) {
                 game.chess.undo();
             }
@@ -349,8 +311,6 @@ function renderGame(game_num) {
                     mv.from = source;
                     mv.to = target;
                     mv.piece = piece;
-                    console.log('premove set:');
-                    console.log(mv);
                     game.premove = mv;
                     highlightSquares($('#board_'+game_num), 'red', move=mv);
                     return 'snapback'
@@ -359,10 +319,6 @@ function renderGame(game_num) {
         },
     });
 
-
-    console.log('theme is ');
-    console.log(game.theme);
-
     $('#board_'+game_num).find('.white-1e1d7').css('background-color', tinycolor(game.theme.light_rgba));
     $('#board_'+game_num).find('.white-1e1d7').css('color', tinycolor(game.theme.dark_rgba));
     $('#board_'+game_num).find('.black-3c85d').css('background-color', tinycolor(game.theme.dark_rgba));
@@ -370,16 +326,9 @@ function renderGame(game_num) {
 
     $('#board_'+game_num).find('.board-b72b1').css('background-image', game.theme.texture ? 'url(/textures/' + game.theme.texture + ')' : 'none');
 
-
-
-
-
-
-    if ( (game.s12.whose_move === 'B' && game.s12.my_rel === '1') || (game.s12.whose_move === 'W' && game.s12.my_rel === '-1') ) {
+    //if ( (game.s12.whose_move === 'B' && game.s12.my_rel === '1') || (game.s12.whose_move === 'W' && game.s12.my_rel === '-1') ) {
+    if ( game.human_color === 'b' ) {
         game.board.flip();
-
-
-
 
         $('#board_'+game_num).find('.white-1e1d7').css('background-color', tinycolor(game.theme.light_rgba));
         $('#board_'+game_num).find('.white-1e1d7').css('color', tinycolor(game.theme.dark_rgba));
@@ -387,8 +336,6 @@ function renderGame(game_num) {
         $('#board_'+game_num).find('.black-3c85d').css('color', tinycolor(game.theme.light_rgba));
 
         $('#board_'+game_num).find('.board-b72b1').css('background-image', game.theme.texture ? 'url(/textures/' + game.theme.texture + ')' : 'none');
-        
-            
             
         game.top_is_black = false;
     }
@@ -580,7 +527,7 @@ function renderThemeConfig(cur_theme=null) {
         if ( txt_fname ) { img = 'url(/textures/' + txt_fname + ')' }
         cur_theme.texture = txt_fname;    
 
-        console.log($('#theme_board').find('.board-b72b1').css('background-image', img));
+        $('#theme_board').find('.board-b72b1').css('background-image', img);
     });
 
     texture_div.appendTo($('#lists'));
@@ -651,7 +598,7 @@ function renderThemeConfig(cur_theme=null) {
         }
         else { themes = [cur_theme] }
 
-        console.log(Cookies.set('themes', JSON.stringify(themes), {expires: 30000}));
+        Cookies.set('themes', JSON.stringify(themes), {expires: 30000});
 
         themes = Cookies.get('themes');
         if (themes) { themes = JSON.parse(themes) }
@@ -662,11 +609,8 @@ function renderThemeConfig(cur_theme=null) {
 
 
 var theme_board = null;
-
-
 var board_textures = [];
 var piece_themes = [];
-
 var themes = [];
 
 
@@ -699,10 +643,8 @@ $(document).ready(function(){
 
     $.ajax({url: "/txtlist", success: function(result){
         board_textures = JSON.parse(result);
-        console.log(board_textures);
         $.ajax({url: "/piecelist", success: function(result){
             piece_themes = JSON.parse(result);
-            console.log(piece_themes);
         }});
     }});
 

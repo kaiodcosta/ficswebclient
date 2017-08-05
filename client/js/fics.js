@@ -76,8 +76,6 @@ ficswrap.on("result", function(msg) {
                     renderGame(game_num);
                     renderMoveList(game_num, moves);
                 }
-                
-                //ficswrap.emit('command', 'refresh');
             }
         }
     }
@@ -110,24 +108,13 @@ ficswrap.on("result", function(msg) {
         gamemap.set(game_num, new Game(ficsobj.s12, ficsobj.game_info));
         ficswrap.emit('command', 'moves ' + game_num);
     } else if (ficsobj.style12) {
-        console.log(ficsobj.style12);
-        console.log(ficsobj.s12);
-        console.log('s12 move_num is ' +ficsobj.s12.move_num);
-        console.log('s12 whose_move is ' +ficsobj.s12.whose_move);
-        //console.log('getMoveIndexFromS12 is ' +getMoveIndexFromS12(ficsobj.s12));
         var game_num = ficsobj.s12.game_num;
         var game = gamemap.get(game_num);
 
-        console.log('getMoveIndexFromS12 is ' +  game.getMoveIndexFromS12());
-        //if (game.chess.history().length != getMoveIndexFromS12(ficsobj.s12)) {
-        //    console.log('chess says '+game.chess.history().length + ' but s12 says ' + getMoveIndexFromS12(ficsobj.s12) +', doing nothing');
-        //    //ficswrap.emit('command', 'moves '+game_num);
-        //} else {
         if (game.chess.history().length != game.getMoveIndexFromS12() + 1) {
             console.log('chess says '+game.chess.history().length + ' but s12 says ' + game.getMoveIndexFromS12() +', doing nothing');
             //ficswrap.emit('command', 'moves '+game_num);
         } else {
-
             var move_info = game.chess.move(ficsobj.s12.move_note_short, {sloppy:true});
             if (move_info) {
                 if (game.chess.in_check()) {
@@ -152,14 +139,8 @@ ficswrap.on("result", function(msg) {
 
                 var whose_move = ['w','b'][new_move_index % 2];
 
-                //if (whose_move === game.humanColor() && !game.premove) { goToMove(game_num, new_move_index, animate=false) }
                 if (whose_move === game.human_color && !game.premove) { goToMove(game_num, new_move_index, animate=false) }
-                else { console.log('qqqqqqqqqqqqqq'); goToMove(game_num, new_move_index, animate=true); }
-                
-
-                //if (game.current_move_index == new_move_index - 1) {
-                //    goToMove(game_num, new_move_index, animate=true);
-                //}
+                else { goToMove(game_num, new_move_index, animate=true); }
             }
 
             if (ficsobj.s12.my_rel === '1' && game.premove) {
@@ -185,7 +166,6 @@ ficswrap.on("result", function(msg) {
                 var valid_move = game.chess.move(mv);
                 if (valid_move) {
                     game.chess.undo();
-                    console.log('actual valid premove, calling it');
                     ficswrap.emit('command',valid_move.san);
                 } else {
                     var pos = game.board.position();
@@ -198,15 +178,6 @@ ficswrap.on("result", function(msg) {
                     game.empty_square = null;
                     game.empty_piece = null;
                 }
-
-                console.log('the attempted premove is ');
-                console.log(source);
-                console.log(target);
-                console.log(piece);
-                console.log(mv);
-                console.log('result is: ')
-                console.log(valid_move);
-
             }
         }
 
@@ -219,5 +190,4 @@ ficswrap.on("result", function(msg) {
         $('#shellout').scrollTop($('#shellout').prop('scrollHeight'));
     }
 });
-
 
