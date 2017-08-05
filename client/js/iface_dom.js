@@ -1,6 +1,6 @@
-function getMoveIndexFromS12(s12) {
-    return ((s12.move_num-1) * 2) - (s12.whose_move == 'W' ? 1 : 0); 
-}
+//function getMoveIndexFromS12(s12) {
+//    return ((s12.move_num-1) * 2) - (s12.whose_move == 'W' ? 1 : 0); 
+//}
 
 
 function toMinutes(seconds) {
@@ -126,6 +126,10 @@ function highlightSquares(board_div, color, move=null, clear=false) {
         board_div.find('.square-' + move.to).addClass('highlight-square-'+color);
         board_div.find('.square-' + move.from).addClass('highlight-square-'+color);
     }
+    console.log(board_div);
+    console.log(color);
+    console.log(move);
+    console.log(clear);
 }
 
 
@@ -137,12 +141,32 @@ function goToMove(game_num, i, animate=false) {
     if (i == -1) {
         game.board.position(game.startfen, animate);
     } else {
-        game.board.position(game.fens[i], animate);
+        if (game.empty_square) {
+            var pos = game.board.position();
+            delete pos[game.empty_square];
+            game.board.position(pos, false);
+            var pos2 = ChessBoard.fenToObj(game.fens[i]);
+            if (pos2[game.empty_square] === game.empty_piece) {
+                delete pos2[game.empty_square];
+            }
+            game.board.position(pos2, animate);
+        } else {
+            game.board.position(game.fens[i], animate);
+        }
+
         
         var mv = game.chess.history({verbose: true})[i];
+        console.log('prewhat');
+        console.log(i);
+        console.log(game);
+        console.log(mv);
         var board_div = $('#board_'+game_num);
 
-        highlightSquares(board_div, 'cyan', move=mv);
+        console.log('what');
+        //highlightSquares(board_div, 'yellow', move=mv);
+        highlightSquares($('#board_'+game_num), 'yellow', move=mv);
+        console.log($('#board_'+game_num));
+        console.log('double what');
 
         $('#move_' + game_num + '_' + i).addClass('highlight');;
     }
@@ -249,12 +273,37 @@ function renderGame(game_num) {
         position: game.chess.fen().split(/\s+/)[0],
         draggable:true,
         onDragStart : function(source, piece, pos, orientation) {
+            /*
             if (['-1','1'].indexOf(game.s12.my_rel) != -1) {
+                return true;
+            }
+            return false;
+            */
+			//if (piece[0] === game.humanColor()) return true;
+            console.log('please');
+            console.log(piece);
+            console.log(game.human_color);
+			if (piece[0] === game.human_color) {
+                game.empty_square = source;
+                game.empty_piece = piece;
                 return true;
             }
             return false;
         },
         onDrop : function(source, target, piece, newPos, oldPos, orientation) {
+            if (target === game.empty_square) {
+                var pos = game.board.position();
+
+                if (!pos[game.empty_square]) {
+                    pos[game.empty_square] = game.empty_piece;
+                    game.board.position(pos);
+                }
+
+                game.empty_square = null;
+                game.empty_piece = null;
+
+
+            }
             var mv = { from: source, to: target };
             console.log('piece is ' +piece);
             if (/[18]$/.test(target) && /[pP]/.test(piece)) {
@@ -275,6 +324,17 @@ function renderGame(game_num) {
             }
             if (game.s12.my_rel === '1') {
                 if (!valid_move) {
+                    if (game.empty_square) {
+                        var pos = game.board.position();
+
+                        if (!pos[game.empty_square]) {
+                            pos[game.empty_square] = game.empty_piece;
+                            game.board.position(pos, false);
+                        }
+
+                        game.empty_square = null;
+                        game.empty_piece = null;
+                    }
                     return 'snapback';
                 } else {
                     ficswrap.emit('command',valid_move.san);

@@ -50,7 +50,24 @@ class Game {
                 return 'img/chesspieces/' + this.theme.black_pieces + '/' + piece + '.png';
             }
         };
+        this.human_color = 'x';
     }
+
+    getMoveIndexFromS12() {
+        if ( !this.s12 ) return -1;
+        return ((this.s12.move_num-1) * 2) - (this.s12.whose_move == 'W' ? 1 : 0);
+    }
+
+    humanColor() {
+        console.log(this.s12.my_rel);
+        console.log(this.s12.my_rel);
+        if (this.s12.my_rel != '1' && this.s12.my_rel != '-1') return 'x';
+        else {
+            if ( (this.my_rel === '1' && !this.getMoveIndexFromS12() % 2) || (this.my_rel === '-1' && this.getMoveIndexFromS12() % 2) ) return 'w';
+            else return 'b';
+        }
+    }
+
 }
 
 
