@@ -27,6 +27,9 @@ function stopClocks(game_num) {
 
 function runClock(game_num) {
     var game = gamemap.get(game_num);
+    if (!game) {
+        console.log('in runClock and game not found for game_num ' + game_num);
+    }
     stopClocks(game_num);
 
     var whose_move = ['w','b'][game.chess.history().length % 2];
@@ -138,21 +141,24 @@ function goToMove(game_num, i, animate=false) {
     game.current_move_index = i;
     if (i == -1) {
         game.board.position(game.startfen, animate);
+        ///////
+        //
     } else {
-        if (game.empty_square) {
+        if (game.empty_square) { // piece is hovering
+            game.board.position(game.fens[i], animate);
             var pos = game.board.position();
-            delete pos[game.empty_square];
-            game.board.position(pos, false);
-            var pos2 = ChessBoard.fenToObj(game.fens[i]);
-            if (pos2[game.empty_square] === game.empty_piece) {
-                delete pos2[game.empty_square];
+            var piece_there_now = pos[game.empty_square];
+            if (piece_there_now === game.empty_piece) {
+                delete pos[game.empty_square];
+                game.board.position(pos, false);
+            } else {
+                game.empty_square = null;
+                game.empty_piece = null;
             }
-            game.board.position(pos2, animate);
         } else {
             game.board.position(game.fens[i], animate);
         }
 
-        
         var mv = game.chess.history({verbose: true})[i];
         var board_div = $('#board_'+game_num);
 
@@ -176,6 +182,7 @@ function showResult(game_num) {
 }
 
 function removeGame(game_num) {
+    if (human_game ==  gamemap.get(game_num)) human_game = null;
     gamemap.get(game_num).board.destroy();
     gamemap.delete(game_num);
     $('#observe_'+game_num).remove();
@@ -253,8 +260,10 @@ function renderGame(game_num) {
         draggable:true,
         onDragStart : function(source, piece, pos, orientation) {
 			if (piece[0] === game.human_color) {
-                game.empty_square = source;
-                game.empty_piece = piece;
+                if (game.s12.my_rel === '-1') {
+                    game.empty_square = source;
+                    game.empty_piece = piece;
+                }
                 return true;
             }
             return false;
@@ -272,48 +281,62 @@ function renderGame(game_num) {
                 game.empty_piece = null;
 
 
-            }
-            var mv = { from: source, to: target };
-            if (/[18]$/.test(target) && /[pP]/.test(piece)) {
-                var choices = game.chess.moves({verbose:true});
-                for (var i=0; i<choices.length; i++) {
-                    m = choices[i];
-                    if (m.from === source && m.to === target) {
-                        mv.promotion = 'q';
-                        break;
+            } else {
+                var mv = { from: source, to: target };
+                if (/[18]$/.test(target) && /[pP]/.test(piece)) {
+                    var choices = game.chess.moves({verbose:true});
+                    for (var i=0; i<choices.length; i++) {
+                        m = choices[i];
+                        if (m.from === source && m.to === target) {
+                            mv.promotion = 'q';
+                            break;
+                        }
                     }
                 }
-            }
-            var valid_move = game.chess.move(mv);
-            if (valid_move) {
-                game.chess.undo();
-            }
-            if (game.s12.my_rel === '1') {
-                if (!valid_move) {
-                    if (game.empty_square) {
-                        var pos = game.board.position();
+                var valid_move = game.chess.move(mv);
+                if (valid_move) {
+                    game.chess.undo();
+                }
+                if (game.s12.my_rel === '1') {
+                    if (!valid_move) {
+                        if (game.empty_square) {
+                            var pos = game.board.position();
 
-                        if (!pos[game.empty_square]) {
-                            pos[game.empty_square] = game.empty_piece;
-                            game.board.position(pos, false);
+                            if (!pos[game.empty_square]) {
+                                pos[game.empty_square] = game.empty_piece;
+                                game.board.position(pos, false);
+                            }
+
+                            game.empty_square = null;
+                            game.empty_piece = null;
+                        }
+                        return 'snapback';
+                    } else {
+                        ficswrap.emit('command',valid_move.san);
+                    }
+                } else if (game.s12.my_rel === '-1') {
+                    if (source && target && source != target) {
+                        var mv = {}
+                        mv.from = source;
+                        mv.to = target;
+                        mv.piece = piece;
+                        game.premove = mv;
+                        highlightSquares($('#board_'+game_num), 'red', move=mv);
+
+                        if (game.empty_square) {
+                            var pos = game.board.position();
+
+                            if (!pos[game.empty_square]) {
+                                pos[game.empty_square] = game.empty_piece;
+                                game.board.position(pos, false);
+                            }
+
+                            game.empty_square = null;
+                            game.empty_piece = null;
                         }
 
-                        game.empty_square = null;
-                        game.empty_piece = null;
+                        return 'snapback'
                     }
-                    return 'snapback';
-                } else {
-                    ficswrap.emit('command',valid_move.san);
-                }
-            } else if (game.s12.my_rel === '-1') {
-                if (source && target && source != target) {
-                    var mv = {}
-                    mv.from = source;
-                    mv.to = target;
-                    mv.piece = piece;
-                    game.premove = mv;
-                    highlightSquares($('#board_'+game_num), 'red', move=mv);
-                    return 'snapback'
                 }
             }
         },
@@ -326,7 +349,6 @@ function renderGame(game_num) {
 
     $('#board_'+game_num).find('.board-b72b1').css('background-image', game.theme.texture ? 'url(/textures/' + game.theme.texture + ')' : 'none');
 
-    //if ( (game.s12.whose_move === 'B' && game.s12.my_rel === '1') || (game.s12.whose_move === 'W' && game.s12.my_rel === '-1') ) {
     if ( game.human_color === 'b' ) {
         game.board.flip();
 
@@ -636,8 +658,18 @@ var soundmap = {
     checks: []
 };
 
+var human_game = null;
 
 $(document).ready(function(){
+    $('body').on('mouseup', function(e) {
+        if (human_game && human_game.premove) {
+            if (!$(e.target).closest('#board_' + human_game.game_num).length) {
+                human_game.premove = null;
+                highlightSquares($('#board_' + human_game.game_num), 'red', clear=true);
+            }
+        }
+    });
+
     themes = Cookies.get('themes');
     if (themes) { themes = JSON.parse(themes) }
 

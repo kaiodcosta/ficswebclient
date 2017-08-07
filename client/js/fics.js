@@ -106,6 +106,7 @@ ficswrap.on("result", function(msg) {
     if (ficsobj.observe) {
         var game_num = ficsobj.game_info.game_num;
         gamemap.set(game_num, new Game(ficsobj.s12, ficsobj.game_info));
+        if (ficsobj.s12.my_rel === '1' || ficsobj.s12.my_rel === '-1') { human_game = gamemap.get(game_num); }
         ficswrap.emit('command', 'moves ' + game_num);
     } else if (ficsobj.style12) {
         var game_num = ficsobj.s12.game_num;
@@ -167,16 +168,6 @@ ficswrap.on("result", function(msg) {
                 if (valid_move) {
                     game.chess.undo();
                     ficswrap.emit('command',valid_move.san);
-                } else {
-                    var pos = game.board.position();
-
-                    if (!pos[game.empty_square]) {
-                        pos[game.empty_square] = game.empty_piece;
-                        game.board.position(pos);
-                    }
-
-                    game.empty_square = null;
-                    game.empty_piece = null;
                 }
             }
         }
