@@ -35,12 +35,16 @@ ficswrap.on("logged_in", function(msg) {
 });
 
 ficswrap.on("result", function(msg) {
+    console.log('zxc');
+    console.log(msg);
     var ficsobj = window.FICSPARSER.parse(msg);
     var showout = false;
+    console.log(ficsobj);
 
+    console.log('zxc2');
     if (ficsobj.cmd_code) {
         cmd_code = ficsobj.cmd_code;
-        if (ficsobj.end_reached) {
+        //if (ficsobj.end_reached) {
             // games command result
             if (ficsobj.cmd_code === 43) {
                 renderGameList(ficsobj.body.split('\n'));
@@ -59,35 +63,30 @@ ficswrap.on("result", function(msg) {
                 var game_num = movesobj.get("game_num");
                 var game = gamemap.get(game_num);
 
-                if (game) {
-                    var moves = movesobj.get("moves");
-                    var movetimes = movesobj.get("movetimes");
-
-                    for (var i=0; i<moves.length; i++) {
-                        game.chess.move(moves[i]);
-                        game.fens[i] = game.chess.fen().split(/\s+/)[0];
-                        game.movetimes[i] = movetimes[i];
-                    }
-
-                    game.current_move_index = game.chess.history().length - 1;
-                    game.human_color =  (game.s12.whose_move === 'B' && game.s12.my_rel === '1') || (game.s12.whose_move === 'W' && game.s12.my_rel === '-1') ? 'b' : 'w';
-                    if (game.s12.my_rel != '1' && game.s12.my_rel != '-1') game.human_color = 'x';
+                if (game) { 
+                    game.initMoves(movesobj); 
 
                     renderGame(game_num);
-                    renderMoveList(game_num, moves);
+                    renderMoveList(game_num, game.moves);
                 }
             }
-        }
+        //}
     }
     
     showout = true;
 
     if (ficsobj.unobserve) {
-        var grdiv = $('#result_'+ficsobj.game_num);
-        if (grdiv && grdiv.html() === 'IN PROGRESS') {
-            grdiv.html('NO LONGER OBSERVING');
+
+        console.log('remove game nums');
+        console.log(ficsobj.remove_game_nums);
+
+        for (i=0; i<ficsobj.remove_game_nums.length; i++) {
+            var grdiv = $('#result_'+ficsobj.remove_game_nums[i]);
+            if (grdiv && grdiv.html() === 'IN PROGRESS') {
+                grdiv.html('NO LONGER OBSERVING');
+            }
+            stopClocks(ficsobj.remove_game_nums[i]);
         }
-        stopClocks(ficsobj.game_num);
     }
 
     if (ficsobj.game_info.result) {
@@ -104,9 +103,14 @@ ficswrap.on("result", function(msg) {
     }
 
     if (ficsobj.observe) {
+        console.log('qwe');
         var game_num = ficsobj.game_info.game_num;
         gamemap.set(game_num, new Game(ficsobj.s12, ficsobj.game_info));
-        if (ficsobj.s12.my_rel === '1' || ficsobj.s12.my_rel === '-1') { human_game = gamemap.get(game_num); }
+        if (ficsobj.s12.my_rel === '1' || ficsobj.s12.my_rel === '-1') { 
+            human_game = gamemap.get(game_num); 
+            human_game.human_color =  (ficsobj.s12.whose_move === 'B' && ficsobj.s12.my_rel === '1') || (ficsobj.s12.whose_move === 'W' && ficsobj.s12.my_rel === '-1') ? 'b' : 'w';
+        }
+        console.log('qwe2');
         ficswrap.emit('command', 'moves ' + game_num);
     } else if (ficsobj.style12) {
         var game_num = ficsobj.s12.game_num;

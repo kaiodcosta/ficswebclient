@@ -26,16 +26,18 @@
         style12: '',
         s12: { ranks: [] },
         game_info: {},
+        remove_game_nums: [],
+        qwe : [],
         };
 }
 
-start =  header? body ender? {
+start =  header? body ender? style12? ender? {
   return res;
   }
 
 header = $("\x15" cmdnum "\x16" cmdcode "\x16")
 
-body = fb: $(neither? something? neither? something? neither? something? neither?) {
+body = fb: $(neither? something? neither? something? neither? something? neither? something? neither? something? neither?) {
     res.fullbody = fb;
 }
 
@@ -45,7 +47,7 @@ neither = bod: $( (!(something / "\x17") .)* )  {
   res.body = res.body + bod; }
 
 
-unobserve = "Removing game " + game_num + " from observation list." {
+unobserve = $("Removing game " remove_game_num " from observation list.\n") + {
     res.unobserve = true;
 }
 
@@ -78,6 +80,12 @@ creating = "Creating: " game_info
 game_num = gn:$([1-9][0-9]*) {
     res.game_num = gn;
     res.game_info.game_num = gn;
+  }
+
+remove_game_num = gn:$([1-9][0-9]*) {
+    if ( !res.remove_game_nums.includes(gn)) {
+        res.remove_game_nums.push(gn);
+    }
   }
 
 game_info = white_player _ "(" white_rating ")" _ black_player _ "(" black_rating ")" _ runr _ variant _ time _ inc 
