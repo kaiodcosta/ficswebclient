@@ -204,6 +204,43 @@ function renderGame(game_num) {
     var bottom_time_div = $('<div id="bottom_time_' + game_num + '" class="bottom_time"></div>');
     var result_div = $('<div id="result_' + game_num + '" class="game_info">IN PROGRESS</div>');
     var controls_div = $('<div id="controls_' + game_num + '" class="controls"></div>');
+
+
+
+
+    //remove button should call unobserve
+    //resign button
+    //rematch button
+    //draw button
+    //abort button
+
+    if (game === human_game) {
+        var resign_button = $('<button type="button" id="resign_' + game_num + '"> Resign </button>');
+        resign_button.click(function() {
+            ficsobj.emit('command','resign');
+        });
+
+        var abort_button = $('<button type="button" id="abort_' + game_num + '"> Abort </button>');
+        abort_button.click(function() {
+            ficsobj.emit('command','abort');
+        });
+
+        var rematch_button = $('<button type="button" id="rematch_' + game_num + '"> Rematch </button>');
+        rematch_button.click(function() {
+            ficsobj.emit('command','rematch');
+        });
+
+        var draw_button = $('<button type="button" id="draw_' + game_num + '"> Draw </button>');
+        draw_button.click(function() {
+            ficsobj.emit('command','draw');
+        });
+    }
+
+
+
+
+
+
     var flip_button = $('<button type="button" id="flip_' + game_num + '"> Flip </button>');
     flip_button.click(function() {
         game.top_is_black = game.top_is_black ? false : true;
@@ -312,31 +349,43 @@ function renderGame(game_num) {
                         }
                         return 'snapback';
                     } else {
-                        ficswrap.emit('command',valid_move.san);
+                        ficswrap.emit('command', valid_move.from + '-' + valid_move.to);
                     }
                 } else if (game.s12.my_rel === '-1') {
-                    if (source && target && source != target) {
-                        var mv = {}
-                        mv.from = source;
-                        mv.to = target;
-                        mv.piece = piece;
-                        game.premove = mv;
-                        highlightSquares($('#board_'+game_num), 'red', move=mv);
-
-                        if (game.empty_square) {
-                            var pos = game.board.position();
-
-                            if (!pos[game.empty_square]) {
-                                pos[game.empty_square] = game.empty_piece;
-                                game.board.position(pos, false);
+                    var mv = {}
+                    if (source != target) {
+                        if (target === 'offboard') {
+                            if (game.premove) {
+                                if (game.premove.from === source) {
+                                    game.premove = null;
+                                    highlightSquares($('#board_'+game_num), 'red', clear=true);
+                                }
+                            } else { 
+                                //do nothing
                             }
+                        } else {
+                            mv.from = source;
+                            mv.to = target;
+                            mv.piece = piece;
+                            game.premove = mv;
+                            highlightSquares($('#board_'+game_num), 'red', clear=true);
+                            highlightSquares($('#board_'+game_num), 'red', move=mv);
 
-                            game.empty_square = null;
-                            game.empty_piece = null;
+                            if (game.empty_square) {
+                                var pos = game.board.position();
+
+                                if (!pos[game.empty_square]) {
+                                    pos[game.empty_square] = game.empty_piece;
+                                    game.board.position(pos, false);
+                                }
+
+                                game.empty_square = null;
+                                game.empty_piece = null;
+                            }
                         }
-
-                        return 'snapback'
                     }
+
+                    return 'snapback'
                 }
             }
         },
@@ -661,14 +710,6 @@ var soundmap = {
 var human_game = null;
 
 $(document).ready(function(){
-    $('body').on('mouseup', function(e) {
-        if (human_game && human_game.premove) {
-            if (!$(e.target).closest('#board_' + human_game.game_num).length) {
-                human_game.premove = null;
-                highlightSquares($('#board_' + human_game.game_num), 'red', clear=true);
-            }
-        }
-    });
 
     themes = Cookies.get('themes');
     if (themes) { themes = JSON.parse(themes) }
