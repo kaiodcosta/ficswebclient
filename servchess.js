@@ -147,7 +147,11 @@ io.on('connection', function(socket) {
                         });
 
                         socket.on('command', function(cmd) {
-                            stream.write('77 ' + cmd + '\n');
+                            stream.write('123987001 ' + cmd + '\n');
+                        });
+
+                        socket.on('command_shell', function(cmd) {
+                            stream.write('773450001 ' + cmd + '\n');
                         });
 
                         stream.on("error", (error) => console.log('EERRROOOORRRR:::   '+error));

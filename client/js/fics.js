@@ -74,48 +74,47 @@ ficswrap.on("logged_in", function(msg) {
 });
 
 ficswrap.on("result", function(msg) {
-    console.log('zxc');
     console.log(msg);
     var ficsobj = window.FICSPARSER.parse(msg);
-    var showout = false;
     console.log(ficsobj);
 
-    console.log('zxc2');
+    var showout = false;
+    if ( (ficsobj.cmd_num === 0 || ficsobj.cmd_num === 773450001) && /^123987001/.test(ficsobj.fullbody) === false) {
+        showout = true;
+    }
+
     if (ficsobj.cmd_code) {
         cmd_code = ficsobj.cmd_code;
-        //if (ficsobj.end_reached) {
-            // games command result
-            if (ficsobj.cmd_code === 43) {
-                renderGameList(ficsobj.body.split('\n'));
+        // games command result
+        if (ficsobj.cmd_code === 43) {
+            renderGameList(ficsobj.body.split('\n'));
 
-            // sought command result
-            } else if (ficsobj.cmd_code === 157) {
-                renderSoughtList(ficsobj.body.split('\n'));
+        // sought command result
+        } else if (ficsobj.cmd_code === 157) {
+            renderSoughtList(ficsobj.body.split('\n'));
 
-            // variables command result
-            } else if (ficsobj.cmd_code === 143) {
-                //console.log(ficsobj.fullbody);
+        // variables command result
+        } else if (ficsobj.cmd_code === 143) {
+            //console.log(ficsobj.fullbody);
 
-            // moves command result
-            } else if (ficsobj.cmd_code === 77) {
-                var movesobj = window.MOVESPARSER.parse(ficsobj.body);
-                var game_num = movesobj.get("game_num");
-                var game = gamemap.get(game_num);
+        // moves command result
+        } else if (ficsobj.cmd_code === 77) {
+            var movesobj = window.MOVESPARSER.parse(ficsobj.body);
+            var game_num = movesobj.get("game_num");
+            var game = gamemap.get(game_num);
 
-                if (game) { 
-                    game.initMoves(movesobj); 
+            if (game) { 
+                game.initMoves(movesobj); 
 
-                    renderGame(game_num);
-                    renderMoveList(game_num, game.moves);
-                }
+                renderGame(game_num);
+                renderMoveList(game_num, game.moves);
             }
-        //}
+        }
     }
     
-    showout = true;
+    //showout = true;
 
     if (ficsobj.unobserve) {
-
         console.log('remove game nums');
         console.log(ficsobj.remove_game_nums);
 
@@ -215,12 +214,12 @@ ficswrap.on("result", function(msg) {
             }
         }
 
-        showout = true;
+        //showout = false;
     }
 
-    if (ficsobj.body.length && showout) 
+    if (ficsobj.fullbody.length && showout && !ficsobj.style12) 
     {
-        $('#shellout2').append(ficsobj.fullbody + '\n\n');
+        $('#shellout2').append(ficsobj.fullbody.replace(/^773450001/, '\n<font color="red">fics%</font>') + '\n');
         $('#shellout').scrollTop($('#shellout').prop('scrollHeight'));
     }
 });

@@ -914,7 +914,7 @@ $(document).ready(function(){
 
     $('#shellin').keypress(function(e) {
             if (e.which == 13) {
-                ficswrap.emit('command', $('#shell').val());
+                ficswrap.emit('command_shell', $('#shell').val());
                 $('#shell').val('');
             }
     });
