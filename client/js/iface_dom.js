@@ -141,8 +141,6 @@ function goToMove(game_num, i, animate=false) {
     game.current_move_index = i;
     if (i == -1) {
         game.board.position(game.startfen, animate);
-        ///////
-        //
     } else {
         if (game.empty_square) { // piece is hovering
             game.board.position(game.fens[i], animate);
@@ -182,8 +180,12 @@ function showResult(game_num) {
 }
 
 function removeGame(game_num) {
+    ficswrap.emit('command', 'unobserve ' + game_num);
     if (human_game ==  gamemap.get(game_num)) human_game = null;
-    gamemap.get(game_num).board.destroy();
+    var game = gamemap.get(game_num);
+    game.board.destroy();
+    clearInterval(game.clocks['w']);
+    clearInterval(game.clocks['b']);
     gamemap.delete(game_num);
     $('#observe_'+game_num).remove();
 }
@@ -204,43 +206,6 @@ function renderGame(game_num) {
     var bottom_time_div = $('<div id="bottom_time_' + game_num + '" class="bottom_time"></div>');
     var result_div = $('<div id="result_' + game_num + '" class="game_info">IN PROGRESS</div>');
     var controls_div = $('<div id="controls_' + game_num + '" class="controls"></div>');
-
-
-
-
-    //remove button should call unobserve
-    //resign button
-    //rematch button
-    //draw button
-    //abort button
-
-    if (game === human_game) {
-        var resign_button = $('<button type="button" id="resign_' + game_num + '"> Resign </button>');
-        resign_button.click(function() {
-            ficsobj.emit('command','resign');
-        });
-
-        var abort_button = $('<button type="button" id="abort_' + game_num + '"> Abort </button>');
-        abort_button.click(function() {
-            ficsobj.emit('command','abort');
-        });
-
-        var rematch_button = $('<button type="button" id="rematch_' + game_num + '"> Rematch </button>');
-        rematch_button.click(function() {
-            ficsobj.emit('command','rematch');
-        });
-
-        var draw_button = $('<button type="button" id="draw_' + game_num + '"> Draw </button>');
-        draw_button.click(function() {
-            ficsobj.emit('command','draw');
-        });
-    }
-
-
-
-
-
-
     var flip_button = $('<button type="button" id="flip_' + game_num + '"> Flip </button>');
     flip_button.click(function() {
         game.top_is_black = game.top_is_black ? false : true;
@@ -277,6 +242,45 @@ function renderGame(game_num) {
     moves_div.appendTo(ginfo_div);
     bottom_time_div.appendTo(ginfo_div);
     result_div.appendTo(ginfo_div);
+
+
+
+
+    //resign button
+    //rematch button
+    //draw button
+    //abort button
+
+    if (game === human_game) {
+        var resign_button = $('<button type="button" id="resign_' + game_num + '"> Resign </button>');
+        resign_button.click(function() {
+            ficswrap.emit('command','resign');
+        });
+
+        var abort_button = $('<button type="button" id="abort_' + game_num + '"> Abort </button>');
+        abort_button.click(function() {
+            ficswrap.emit('command','abort');
+        });
+
+        var rematch_button = $('<button type="button" id="rematch_' + game_num + '"> Rematch </button>');
+        rematch_button.click(function() {
+            ficswrap.emit('command','rematch');
+        });
+
+        var draw_button = $('<button type="button" id="draw_' + game_num + '"> Draw </button>');
+        draw_button.click(function() {
+            ficswrap.emit('command','draw');
+        });
+
+        resign_button.appendTo(controls_div);
+        abort_button.appendTo(controls_div);
+        rematch_button.appendTo(controls_div);
+        draw_button.appendTo(controls_div);
+    }
+
+
+
+
 
     controls_div.appendTo(game_container_div);
     flip_button.appendTo(controls_div);
@@ -633,15 +637,35 @@ function renderThemeConfig(cur_theme=null) {
 
 
     var newtheme_div = $('<div>new theme name: </div>');
+
     var newtheme_text = $('<input type="text" id="new_theme" size="20" />');
     newtheme_text.appendTo(newtheme_div);
+    
+    var save_button = $('<input type="button" id="save_butt" value="save theme" />');
+    save_button.appendTo(newtheme_div);
 
     newtheme_div.appendTo($('#lists'));
 
 
-    var save_div = $('<div><input type="button" id="save_butt" value="save theme" /></div>');
 
-    save_div.appendTo($('#lists'));
+    var space_div = $('<div><br/></div>');
+    space_div.appendTo($('#lists'));
+
+
+
+
+    var deltheme_div = $('<div></div>');
+
+    var defaults_button = $('<input type="button" id="fault_butt" value="restore default themes" />');
+    defaults_button.appendTo(deltheme_div);
+    
+    var del_button = $('<input type="button" id="del_butt" value="delete theme" />');
+    del_button.appendTo(deltheme_div);
+
+    deltheme_div.appendTo($('#lists'));
+
+
+
 
     $('#save_butt').on('click', function() {
         var the_name = null;
@@ -673,8 +697,48 @@ function renderThemeConfig(cur_theme=null) {
 
         themes = Cookies.get('themes');
         if (themes) { themes = JSON.parse(themes) }
+        console.log(JSON.stringify(themes));
 
         renderThemeConfig(cur_theme);
+    });
+
+
+
+
+    $('#fault_butt').on('click', function() {
+        Cookies.remove('themes');
+        Cookies.set('themes', JSON.stringify(default_themes), {expires: 30000});
+
+        themes = Cookies.get('themes');
+        if (themes) { themes = JSON.parse(themes) }
+
+        renderThemeConfig(cur_theme);
+    });
+
+
+
+
+    $('#del_butt').on('click', function() {
+        themes = Cookies.get('themes');
+        if (themes) { themes = JSON.parse(themes) }
+        
+        if (!cur_theme.name || !themes) { return; }
+
+        var new_themes = [];
+
+        for (i=0; i<themes.length; i++) {
+            if (themes[i].name != cur_theme.name) {
+                new_themes.push(themes[i]);
+            }
+        }
+
+        Cookies.set('themes', JSON.stringify(new_themes), {expires: 30000});
+
+        themes = Cookies.get('themes');
+        if (themes) { themes = JSON.parse(themes) }
+
+        cur_theme.name = '';
+        renderThemeConfig(cur_theme=cur_theme);
     });
 }
 

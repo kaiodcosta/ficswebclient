@@ -16,6 +16,42 @@
 #define BLK_VARIABLES 143
 #define BLK_WITHDRAW 147
 */
+default_themes = [{
+"name":"cop",
+"light_rgba":{"r":255,"g":255,"b":255,"a":0.09},
+"dark_rgba":{"r":255,"g":255,"b":255,"a":0},"texture":"brushed-copper.jpg","white_pieces":"alpha","black_pieces":"alpha"},{
+"name":"leav",
+"dark_rgba":{"r":0,"g":0,"b":0,"a":0.71},
+"light_rgba":{"r":255,"g":255,"b":255,"a":0.56},"texture":"Nature-Leaves-Background-70-625x500.jpg","white_pieces":"chesscom","black_pieces":"chess24"},{
+"name":"fire",
+"dark_rgba":{"r":0,"g":0,"b":0,"a":0.74},
+"light_rgba":{"r":253.57199999999997,"g":132.59259171619996,"b":33.141860399999985,"a":0.72},"texture":"Fire-Flames-Background-11-625x468.jpg","white_pieces":"chesscom","black_pieces":"chesscom"},{
+"name":"hunjies",
+"dark_rgba":{"r":48.432867795674994,"g":101.8215,"b":21.718525949999993,"a":0.81},
+"light_rgba":{"r":245.463,"g":244.67996075685002,"b":241.70741610000002,"a":0.79},"texture":"Money-Background-17-625x625.jpg","white_pieces":"uscf","black_pieces":"uscf"},{
+"name":"met",
+"dark_rgba":{"r":0,"g":0,"b":0,"a":0},
+"light_rgba":{"r":226.63988810459998,"g":250.002,"b":54.77543819999999,"a":0.46},"texture":"metal-plate-texture_1048-2443.jpg","white_pieces":"chesscom_wood","black_pieces":"chesscom"},{
+"name":"wood",
+"dark_rgba":{"r":91.31550000000001,"g":28.09777935,"b":28.09777935,"a":0.75},
+"light_rgba":{"r":176.12435600010002,"g":238.4505,"b":103.1059962,"a":0.2},"texture":"antique-wooden-planks-texture_1232-824.jpg","white_pieces":"chesscom","black_pieces":"alpha"},{
+"name":"wawa",
+"dark_rgba":{"r":2.8474999999998563,"g":0,"b":255,"a":0.43},
+"light_rgba":{"r":239.0115,"g":235.93176511905,"b":224.2405893,"a":0.07},"texture":"blue-rippled-water-background-in-swimming-pool_1373-193.jpg","white_pieces":"uscf","black_pieces":"chess24"},{
+"name":"map",
+"light_rgba":{"r":250.002,"g":242.6519412,"b":242.6519412,"a":0.76},
+"dark_rgba":{"r":0,"g":148.49500000000006,"b":255,"a":0.39},"texture":"11.jpg","white_pieces":"alpha","black_pieces":"chess24"}]
+
+
+
+
+function loadThemes() {
+    var themes = Cookies.get('themes');
+    if (!themes) {
+        themes = default_themes;
+        Cookies.set('themes', JSON.stringify(themes), {expires: 30000});
+    }
+}
 
 var ficswrap = io();
 
@@ -31,6 +67,9 @@ ficswrap.on("logged_in", function(msg) {
     $('#unseek').prop('hidden', false);
     $('#themes').prop('hidden', false);
     $('#resizer').prop('hidden', false);
+
+    loadThemes();
+
     ficswrap.emit('command', 'variables');
 });
 
