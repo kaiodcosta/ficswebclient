@@ -174,9 +174,9 @@ function showResult(game_num) {
 
     if (game) {
         $('#result_'+game_num).html(game.situ + ' ' + game.result);
-    } else {
-        console.log('game ' + game_num + ' does not exist in showResult');
-    }
+    } //else {
+    //    console.log('game ' + game_num + ' does not exist in showResult');
+    //}
 }
 
 function removeGame(game_num) {
@@ -217,6 +217,9 @@ function renderGame(game_num) {
         $('#board_'+game_num).find('.black-3c85d').css('color', tinycolor(game.theme.light_rgba));
 
         $('#board_'+game_num).find('.board-b72b1').css('background-image', game.theme.texture ? 'url(/textures/' + game.theme.texture + ')' : 'none');
+        $('#board_'+game_num).find('.board-b72b1').css('background-repeat', 'no-repeat');
+        $('#board_'+game_num).find('.board-b72b1').css('background-position', 'center');
+        $('#board_'+game_num).find('.board-b72b1').css('background-size', 'cover');
 
         renderPlayersDOM(game_num);
     });
@@ -401,6 +404,9 @@ function renderGame(game_num) {
     $('#board_'+game_num).find('.black-3c85d').css('color', tinycolor(game.theme.light_rgba));
 
     $('#board_'+game_num).find('.board-b72b1').css('background-image', game.theme.texture ? 'url(/textures/' + game.theme.texture + ')' : 'none');
+    $('#board_'+game_num).find('.board-b72b1').css('background-repeat', 'no-repeat');
+    $('#board_'+game_num).find('.board-b72b1').css('background-position', 'center');
+    $('#board_'+game_num).find('.board-b72b1').css('background-size', 'cover');
 
     if ( game.human_color === 'b' ) {
         game.board.flip();
@@ -411,6 +417,9 @@ function renderGame(game_num) {
         $('#board_'+game_num).find('.black-3c85d').css('color', tinycolor(game.theme.light_rgba));
 
         $('#board_'+game_num).find('.board-b72b1').css('background-image', game.theme.texture ? 'url(/textures/' + game.theme.texture + ')' : 'none');
+        $('#board_'+game_num).find('.board-b72b1').css('background-repeat', 'no-repeat');
+        $('#board_'+game_num).find('.board-b72b1').css('background-position', 'center');
+        $('#board_'+game_num).find('.board-b72b1').css('background-size', 'cover');
             
         game.top_is_black = false;
     }
@@ -516,6 +525,9 @@ function renderThemeConfig(cur_theme=null) {
     $('#theme_board').find('.black-3c85d').css('color', tinycolor(cur_theme.light_rgba));
 
     $('#theme_board').find('.board-b72b1').css('background-image', cur_theme.texture ? 'url(/textures/' + cur_theme.texture + ')' : 'none');
+    $('#theme_board').find('.board-b72b1').css('background-repeat', 'no-repeat');
+    $('#theme_board').find('.board-b72b1').css('background-position', 'center');
+    $('#theme_board').find('.board-b72b1').css('background-size', 'cover');
 
 
     var theme_div = $('<div>theme: </div>');
@@ -603,6 +615,9 @@ function renderThemeConfig(cur_theme=null) {
         cur_theme.texture = txt_fname;    
 
         $('#theme_board').find('.board-b72b1').css('background-image', img);
+        $('#theme_board').find('.board-b72b1').css('background-repeat', 'no-repeat');
+        $('#theme_board').find('.board-b72b1').css('background-position', 'center');
+        $('#theme_board').find('.board-b72b1').css('background-size', 'cover');
     });
 
     texture_div.appendTo($('#lists'));
@@ -697,7 +712,7 @@ function renderThemeConfig(cur_theme=null) {
 
         themes = Cookies.get('themes');
         if (themes) { themes = JSON.parse(themes) }
-        console.log(JSON.stringify(themes));
+        //console.log(JSON.stringify(themes));
 
         renderThemeConfig(cur_theme);
     });

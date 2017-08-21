@@ -143,6 +143,9 @@ ficswrap.on("result", function(msg) {
     if (ficsobj.observe) {
         console.log('qwe');
         var game_num = ficsobj.game_info.game_num;
+        if (gamemap.get(game_num)) {
+            removeGame(game_num);
+        }
         gamemap.set(game_num, new Game(ficsobj.s12, ficsobj.game_info));
         if (ficsobj.s12.my_rel === '1' || ficsobj.s12.my_rel === '-1') { 
             human_game = gamemap.get(game_num); 
