@@ -1,8 +1,7 @@
 
 
 # first make sure to install for node:  express socket.io telnet-client pegjs
-npm install --global pegjs
-npm install express socket.io telnet-client
+npm install express socket.io telnet-client pegjs
 
 # do this once
 wget http://chessboardjs.com/releases/0.3.0/chessboardjs-0.3.0.zip && mkdir -p client/chessboardjs-0.3.0 && unzip chessboardjs-0.3.0.zip -d client/chessboardjs-0.3.0 && mv client/chessboardjs-0.3.0/img client/
