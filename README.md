@@ -1,11 +1,10 @@
-### After cloning repository, go into it and then do:
+##### After cloning repository, go into it and then do:
 npm install express socket.io telnet-client pegjs
 
-
-### Do this once and then anytime the pegjs/fics_parser.pegjs is changed
+##### Do this once and then anytime pegjs/fics_parser.peg.js or pegjs/moves_parser.peg.js is changed
 cd pegjs && ./buildweb
 
-### run
+##### Run server
 cd .. && ./servchess.js
 
-### go to http://host:3008
+##### Go to http://host:3008
