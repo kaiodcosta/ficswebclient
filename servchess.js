@@ -81,7 +81,7 @@ var fics_telnet_params = {
     host: 'freechess.org',
     port: 5000,
     shellPrompt: 'fics% ',
-    timeout: 3000,
+    timeout: 7000,
     loginPrompt: 'login: ',
     passwordPrompt: 'password: ',
     debug: true,
