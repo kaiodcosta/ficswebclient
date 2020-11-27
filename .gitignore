@@ -1,9 +1,5 @@
 *~
 *.sw[a-z]
-chessboardjs-0.3.0.zip
-client/chess.js-master/
-client/chessboardjs-0.3.0/
 client/js/ficsparser.js
 client/js/movesparser.js
-master.zip
 node_modules/

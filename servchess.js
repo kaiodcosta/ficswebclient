@@ -66,7 +66,7 @@ app.get('/soundmap', function (req, res) {
 })
 
 var http = require('http').Server(app);
-var port = 3000;
+var port = 3008;
 
 http.listen(port, function() {
     console.log('listening on port ' + port);
@@ -81,7 +81,7 @@ var fics_telnet_params = {
     host: 'freechess.org',
     port: 5000,
     shellPrompt: 'fics% ',
-    timeout: 1500,
+    timeout: 3000,
     loginPrompt: 'login: ',
     passwordPrompt: 'password: ',
     debug: true,
